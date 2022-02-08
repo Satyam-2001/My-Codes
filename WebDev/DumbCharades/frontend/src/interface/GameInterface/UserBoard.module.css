@@ -1,0 +1,13 @@
+.board{
+    display: inline-block;
+    vertical-align: top;
+    height: 100%;
+    width: 22%;
+    background-color: rgba(25,25,25,0.9);
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.title{
+    height: 60px;
+}
