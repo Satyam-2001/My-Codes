@@ -4,20 +4,12 @@ import Team from './Team'
 import classes from './RoomInterface.module.css'
 import UserSettings from './UserSettings'
 
-const RoomInterface = ({ user }) => {
+const RoomInterface = ({ user , roomData: room , team: currentTeam }) => {
 
-    const [roomData, setRoomData] = useState(null)
-    const [team, setTeam] = useState(true)
-
+    const [roomData, setRoomData] = useState(room)
+    const [team, setTeam] = useState(currentTeam)
+    console.log(room)
     const { socket } = user
-    useEffect(() => {
-        socket.on('joined', (roomData, teamData) => {
-            console.log(roomData)
-            setRoomData(roomData)
-            setTeam(teamData)
-        })
-        return () => { socket.off('joined') }
-    }, [socket])
 
     useEffect(() => {
         socket.on('changeOccured', (roomData) => {

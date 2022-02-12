@@ -1,0 +1,10 @@
+header{
+    display: flex;
+    flex-direction: row;
+    height: 10%;
+}
+
+.title{
+    margin: 10px;
+    height: auto;
+}

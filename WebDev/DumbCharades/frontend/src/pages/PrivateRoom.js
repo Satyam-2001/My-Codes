@@ -6,7 +6,7 @@ const ENDPOINT = "http://localhost:4001";
 
 const PrivateRoom = (props) => {
 
-    const [userData, setUserData] = useState(null)
+    const [data, setData] = useState(null)
 
     const joinRoom = () => {
         const socket = socketIOClient(ENDPOINT);
@@ -14,14 +14,19 @@ const PrivateRoom = (props) => {
             name: localStorage.getItem('name'),
             avatar: localStorage.getItem('avatar') || 1
         }
-        socket.emit('createRoom', user)
-        setUserData({ ...user, socket })
+        socket.emit('createRoom', user , (id,roomData,team) => {
+            setData({
+                user : { id , ...user , socket },
+                roomData,
+                team
+            })
+        })
     }
 
     return (
         <Fragment>
-            {!userData && <Login join={joinRoom} name='Create Private Room' />}
-            {userData && <Interfaces user={userData} />}
+            {!data && <Login join={joinRoom} name='Create Private Room' />}
+            {data && <Interfaces user={data.user} roomData={data.roomData} team={data.team} />}
         </Fragment>
     )
 }

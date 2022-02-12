@@ -1,5 +1,5 @@
 import React from 'react'
-import StyledText from '../../components/UI/StyledText'
+import StyledText from '../../../components/UI/StyledText'
 import InfoCard from './InfoCard'
 import classes from './UserBoard.module.css'
 

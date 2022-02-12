@@ -8,8 +8,7 @@ const ENDPOINT = "http://localhost:4001";
 const JoinRoom = (props) => {
 
     const roomId = useParams().roomId
-
-    const [userData, setUserData] = useState(null)
+    const [data, setData] = useState(null)
 
     const joinRoom = () => {
         const socket = socketIOClient(ENDPOINT);
@@ -17,14 +16,19 @@ const JoinRoom = (props) => {
             name: localStorage.getItem('name'),
             avatar: localStorage.getItem('avatar') || 1
         }
-        socket.emit('joinRoom', roomId, user)
-        setUserData({ ...user, socket })
+        socket.emit('joinRoom', roomId , user , (id,roomData,team) => {
+            setData({
+                user : { id , ...user , socket },
+                roomData,
+                team
+            })
+        })
     }
 
     return (
         <Fragment>
-            {!userData && <Login join={joinRoom} name='Join Room' />}
-            {userData && <Interfaces user={userData}/>}
+            {!data && <Login join={joinRoom} name='Join Room' />}
+            {data && <Interfaces user={data.user} roomData={data.roomData} team={data.team} />}
         </Fragment>
     )
 }

@@ -17,17 +17,17 @@ const io = socketio(server, {
 
 io.on('connection', socket => {
 
-    socket.on('createRoom', (user) => {
+    socket.on('createRoom', (user , callback) => {
         const roomId = nanoid(10)
         const roomData = createNewRoom(roomId, { id: socket.id, ...user })
         socket.join(roomId)
-        socket.emit('joined', roomData, true)
+        callback(socket.id,roomData,true)
     })
 
-    socket.on('joinRoom', (roomId, user) => {
+    socket.on('joinRoom', (roomId, user , callback) => {
         const { roomData, team } = addUser(roomId, { id: socket.id, ...user })
         socket.join(roomId)
-        socket.emit('joined', roomData, team)
+        callback(socket.id,roomData,team)
         socket.broadcast.to(roomId).emit('changeOccured', roomData)
     })
 
