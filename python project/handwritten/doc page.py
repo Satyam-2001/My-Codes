@@ -13,7 +13,7 @@ right_indent=None
 bold=0
 
 
-file=Document("handwritten/REPORT.docx")
+file=Document("REPORT.docx")
 lines=file.paragraphs
 
 font_dic={}
@@ -36,7 +36,7 @@ basic_font_size=key_list[position]/0.9
 new_font_size=basic_font_size
 flag=0
 up=0
-img=Image.open("handwritten/images/real.jpg")
+img=Image.open("images/real.jpg")
 a=np.array(img)
 
 arr = np.zeros([6000, 4500, 3], dtype=np.uint8)
@@ -46,7 +46,7 @@ if page_design == 1:
 elif page_design == 2:
     arr[:,:]=[214,215,212]
 elif page_design == 3:
-    bgimage=Image.open("handwritten/images/pages.jpeg")
+    bgimage=Image.open("images/pages.jpeg")
     bgimage=bgimage.resize((4500,6000))
     arr=np.array(bgimage)
 elif page_design == 4:
@@ -103,7 +103,7 @@ for line in lines:
         try:
             Font_size=diff.font.size.pt
         except: 
-            pass
+            Font_size=11
         comp=0
         colour=False
         
@@ -159,7 +159,7 @@ for line in lines:
                             arr[y+10:y+20,underline_x:x]=[0,45,179]
                         underline_x=100
                         pageimg = Image.fromarray(arr)
-                        pageimg.save("handwritten/text_to_writting/page_"+str(page_no)+".jpg")
+                        pageimg.save("text_to_writting/page_"+str(page_no)+".jpg")
                         page_no+=1
                         x,y=100,200
                         arr = np.zeros([6000, 4500, 3], dtype=np.uint8)
@@ -169,7 +169,7 @@ for line in lines:
                         elif page_design == 2:
                             arr[:,:]=[234,235,232]
                         elif page_design == 3:
-                            bgimage=Image.open("handwritten/images/pages.jpeg")
+                            bgimage=Image.open("images/pages.jpeg")
                             bgimage=bgimage.resize((4500,6000))
                             arr=np.array(bgimage)
                         elif page_design == 4:
@@ -401,7 +401,7 @@ for line in lines:
             x+=ux-lx
 
 pageimg = Image.fromarray(arr)
-pageimg.save("handwritten/text_to_writting/page_"+str(page_no)+".jpg")
+pageimg.save("text_to_writting/page_"+str(page_no)+".jpg")
 print('Done !!')
 pageimg.close()
 try:

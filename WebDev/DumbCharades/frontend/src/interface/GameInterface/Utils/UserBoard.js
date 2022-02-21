@@ -8,13 +8,13 @@ const UserBoard = (props) => {
     console.log(props.teamData)
 
     const board = props.teamData.map(user => {
-        return <InfoCard key={user.id} name={user.name} avatar={user.avatar}/>
+        return <InfoCard key={user.id} name={user.name} avatar={user.avatar} color={user.color}/>
     })
 
     return(
-        <div className={classes.board}>
+        <div className={`${props.className} ${classes.board}`} >
             <div className={classes.title}>
-                <StyledText text='Team A'/>
+                <StyledText text={`Team ${props.team}`}/>
             </div>
             <div>
                 {board}

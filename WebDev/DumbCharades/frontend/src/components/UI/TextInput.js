@@ -3,13 +3,13 @@ import classes from './TextInput.module.css'
 
 const TextInput = React.forwardRef((props, ref) => {
     
-    const nameUpdate = (event) => {
+    const update = (event) => {
         props.onChange(event.target.value)
     }
 
     return (
         <div className={`${classes['user-box']} ${!props.valid && classes['invalid']}`}>
-            <input type="text" name="name" value={props.value} onChange={nameUpdate} autoComplete="off" required />
+            <input type="text" name="name" value={props.value} onChange={update} autoComplete="off" required />
             <label>{props.name}</label>
         </div>
     )

@@ -1,15 +1,16 @@
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import PageDesign from '../../components/Cards/PageDesign'
 import Team from './Team'
 import classes from './RoomInterface.module.css'
 import UserSettings from './UserSettings'
+import UserContext from '../../context/user-context'
 
-const RoomInterface = ({ user , roomData: room , team: currentTeam }) => {
+const RoomInterface = (props) => {
 
-    const [roomData, setRoomData] = useState(room)
-    const [team, setTeam] = useState(currentTeam)
-    console.log(room)
-    const { socket } = user
+    const data = useContext(UserContext)
+    const [roomData, setRoomData] = useState(data.roomData)
+    const [team, setTeam] = useState(data.team)
+    const { socket } = data.user
 
     useEffect(() => {
         socket.on('changeOccured', (roomData) => {
@@ -17,8 +18,8 @@ const RoomInterface = ({ user , roomData: room , team: currentTeam }) => {
             setRoomData(roomData)
         })
 
-        return () => {socket.off('changeOccured')}
-    },[])
+        return () => { socket.off('changeOccured') }
+    }, [])
 
     const swapTeamHandler = () => {
         socket.emit('swapTeam', roomData.id, team)
@@ -27,17 +28,19 @@ const RoomInterface = ({ user , roomData: room , team: currentTeam }) => {
 
     const gameStartHandler = () => {
         console.log('start')
-        socket.emit('startGame',roomData.id)
+        socket.emit('startGame', roomData.id)
     }
 
     return (
-        <PageDesign>
-            <div className={classes.main}>
-                {roomData && <Team name='A' team={team} data={roomData.teamA} className={classes.content} swapTeam={swapTeamHandler} />}
-                <UserSettings name={user.name} avatar={user.avatar} socket={socket} gameStartHandler={gameStartHandler} />
-                {roomData && <Team name='B' team={!team} data={roomData.teamB} className={classes.content} swapTeam={swapTeamHandler} />}
-            </div>
-        </PageDesign>
+        <UserContext.Provider value={{ ...data , roomData: roomData }}>
+            <PageDesign>
+                <div className={classes.main}>
+                    {roomData && <Team name='A' team={team} data={roomData.teamA} className={classes.content} swapTeam={swapTeamHandler} />}
+                    <UserSettings gameStartHandler={gameStartHandler}/>
+                    {roomData && <Team name='B' team={!team} data={roomData.teamB} className={classes.content} swapTeam={swapTeamHandler} />}
+                </div>
+            </PageDesign>
+        </UserContext.Provider>
     )
 }
 

@@ -1,0 +1,52 @@
+.chat-box {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    position: absolute;
+    right: 0px;
+    top: 0px;
+    padding: 0px 15px;
+    height: 100%;
+    width: 22%;
+    border-radius: 10px;
+    background-color: rgb(255, 255, 255);
+    overflow-y: auto;
+    overflow-x: hidden;
+    animation: show_box 0.3s ease forwards;
+}
+
+.header {
+    width: 100%;
+    margin-top: 15px;
+    align-self: flex-start;
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+}
+
+.title {
+    align-self: stretch;
+    font-size: medium;
+    flex-grow: 1;
+    margin-bottom: 20px;
+}
+
+.close-button {
+    background-color: transparent;
+    align-self: flex-end;
+    border: none;
+    border-radius: 50%;
+    right: 10px;
+    margin-left: 10px;
+    margin-bottom: 20px;
+}
+
+.close-button:hover {
+    background-color: rgb(220, 220, 220);
+}
+
+@keyframes show_box {
+    0% {
+        transform: translateX(100%);
+    }
+}

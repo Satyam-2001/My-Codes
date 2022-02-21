@@ -1,0 +1,23 @@
+.message-card {
+    display: block;
+}
+
+.info {
+    display: flex;
+    flex-direction: row;
+    /* background-color: aqua; */
+    height: 40px;
+}
+
+.name {
+    font-size: 15px;
+    font-weight: 500;
+}
+
+.date {
+    font-size: small;
+}
+
+.message {
+    margin: 0px;
+}

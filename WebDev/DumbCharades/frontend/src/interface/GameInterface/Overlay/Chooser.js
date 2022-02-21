@@ -1,21 +1,16 @@
 import React from 'react'
-import ReactDOM from 'react-dom'
+import Modal from '../../../components/Utility/Modal'
 import classes from './Chooser.module.css'
 
-const OverlayChooser = (props) => {
-    console.log('inside Chooser')
-    return (
-        <div className={classes.chooser}>
-            Portal
-        </div>
-    )
-}
-
 const Chooser = (props) => {
-    return(
-        <React.Fragment>
-            {ReactDOM.createPortal(<OverlayChooser />,document.getElementById('overlay'))}
-        </React.Fragment>
+    return (
+        <Modal>
+            <div className={classes.chooser}>
+                <div>
+                    <p>CHOOSE A MOVIE</p>
+                </div>
+            </div>
+        </Modal>
     )
 }
 

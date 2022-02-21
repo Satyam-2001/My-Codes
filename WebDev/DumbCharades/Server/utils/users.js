@@ -1,15 +1,36 @@
 const users = []
 
+const colorsArray = [
+    'rgb(255,51,0)',
+    'rgb(204,0,102)',
+    'rgb(102,102,255)',
+    'rgb(255,204,0)',
+    'rgb(102,255,51)',
+    'rgb(255,102,102)',
+    'rgb(153,0,153)',
+    'rgb(0,102,0)',
+    'rgb(255,251,0)',
+    'rgb(255,153,102)',
+    'rgb(153,0,51)',
+    'rgb(51,102,153)',
+    'rgb(102,102,51)',
+    'rgb(153,102,0)',
+    'rgb(153,153,51)',
+    'rgb(51,51,204)',
+]
+
 const createNewRoom = (roomId,userData) => {
-    const room = {
+    const roomData = {
         id: roomId,
+        joined: 0,
         status: null,
         admin: userData.id,
-        teamA: [userData],
+        teamA: [{...userData , color: colorsArray[0]}],
         teamB: []
     }
-    users.push(room)
-    return room
+    users.push(roomData)
+    return { roomData , color: colorsArray[0]}
+
 }
 
 const getRoom = roomId => {
@@ -18,12 +39,15 @@ const getRoom = roomId => {
 
 const addUser = (roomId,userData) => {
     const index = users.findIndex(room => room.id === roomId)
+    users[index].joined = (users[index].joined + 1) % colorsArray.length
+    const color = colorsArray[users[index].joined]
+
     if(users[index].teamA.length <=  users[index].teamB.length){
-        users[index].teamA.push(userData)
-        return {roomData: users[index], team: true}
+        users[index].teamA.push({...userData , color})
+        return {roomData: users[index], team: true , color}
     }
-    users[index].teamB.push(userData)
-    return {roomData: users[index], team: false}
+    users[index].teamB.push({...userData , color})
+    return {roomData: users[index], team: false , color}
 }
 
 const removeUser = (roomId,userId) => {
@@ -53,10 +77,18 @@ const createStatus = (roomId) => {
     const index = users.findIndex(room => room.id === roomId)
     users[index].status = {
         actingTeam : true,
-        actor: users[index].teamA[0],
-        chooser: users[index].teamB[0],
+        actor: users[index].teamB[0],
+        chooser: users[index].teamA[0],
+        movie: null,
         time: new Date()
     }
+    return users[index]
+}
+
+const setMovieName = (roomId,movieName) => {
+    const index = users.findIndex(room => room.id === roomId)
+    users[index].status.movie = movieName
+    users[index].status.actingTeam = !users[index].status.actingTeam
     return users[index]
 }
 
@@ -66,5 +98,6 @@ module.exports = {
     addUser,
     removeUser,
     swapTeam,
-    createStatus
+    createStatus,
+    setMovieName
 }

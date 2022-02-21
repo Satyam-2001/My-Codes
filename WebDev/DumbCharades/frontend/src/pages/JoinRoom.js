@@ -1,8 +1,9 @@
-import React, { useState, Fragment } from 'react'
+import React, { useState, Fragment, createContext } from 'react'
 import { useParams } from 'react-router-dom'
 import Login from '../components/Login/Login'
 import socketIOClient from "socket.io-client";
 import Interfaces from '../interface/Interfaces';
+import UserContext from '../context/user-context';
 const ENDPOINT = "http://localhost:4001";
 
 const JoinRoom = (props) => {
@@ -13,12 +14,12 @@ const JoinRoom = (props) => {
     const joinRoom = () => {
         const socket = socketIOClient(ENDPOINT);
         const user = {
-            name: localStorage.getItem('name'),
+            name: localStorage.getItem('name') || 'User',
             avatar: localStorage.getItem('avatar') || 1
         }
-        socket.emit('joinRoom', roomId , user , (id,roomData,team) => {
+        socket.emit('joinRoom', roomId, user, (id, roomData, team) => {
             setData({
-                user : { id , ...user , socket },
+                user: { id, ...user, socket },
                 roomData,
                 team
             })
@@ -26,10 +27,10 @@ const JoinRoom = (props) => {
     }
 
     return (
-        <Fragment>
+        <UserContext.Provider value={data}>
             {!data && <Login join={joinRoom} name='Join Room' />}
-            {data && <Interfaces user={data.user} roomData={data.roomData} team={data.team} />}
-        </Fragment>
+            {data && <Interfaces />}
+        </UserContext.Provider>
     )
 }
 
