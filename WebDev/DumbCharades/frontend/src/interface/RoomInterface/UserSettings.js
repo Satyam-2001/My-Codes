@@ -17,7 +17,7 @@ const UserSettings = (props) => {
     return (
         <div className={classes.setting}>
             <UserCard name={user.name} avatar={user.avatar} />
-            <Button width='80%' onClick={props.gameStartHandler}>Start Game</Button>
+            <Button width='80%' onClick={props.gameStartHandler}>{(roomData.isRunning ? 'Join Game' : 'Start Game')}</Button>
             <div className={classes.invite}>
                 <p className={classes.link}>{link}</p>
                 <button className={classes['link-button']} onClick={copyLink}>Copy</button>

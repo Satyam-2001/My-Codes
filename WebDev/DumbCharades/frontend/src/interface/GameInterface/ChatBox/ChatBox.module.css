@@ -1,23 +1,29 @@
 .chat-box {
+    box-sizing: border-box;
+    background: url("../../../assets/userboard.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
     display: flex;
     flex-direction: column;
     align-items: stretch;
     position: absolute;
     right: 0px;
     top: 0px;
-    padding: 0px 15px;
+    padding: 0px;
     height: 100%;
     width: 22%;
-    border-radius: 10px;
+    /* border-radius: 10px; */
     background-color: rgb(255, 255, 255);
     overflow-y: auto;
     overflow-x: hidden;
-    animation: show_box 0.3s ease forwards;
+    /* animation: show_box 0.3s ease forwards; */
 }
 
 .header {
     width: 100%;
-    margin-top: 15px;
+    margin: 0px;
+    padding: 0px 15px;
+    background-color: rgb(23, 24, 24);
     align-self: flex-start;
     display: flex;
     flex-direction: row;
@@ -27,22 +33,24 @@
 .title {
     align-self: stretch;
     font-size: medium;
-    flex-grow: 1;
-    margin-bottom: 20px;
+    /* flex-grow: 1; */
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    color: white;
 }
 
 .close-button {
+    position: absolute;
     background-color: transparent;
-    align-self: flex-end;
+    right: 5%;
+    top: 15px;
     border: none;
     border-radius: 50%;
-    right: 10px;
-    margin-left: 10px;
     margin-bottom: 20px;
+    color: white;
 }
 
 .close-button:hover {
-    background-color: rgb(220, 220, 220);
+    background-color: rgb(32, 32, 32);
 }
 
 @keyframes show_box {

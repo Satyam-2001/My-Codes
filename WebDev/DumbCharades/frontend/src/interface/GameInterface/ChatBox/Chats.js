@@ -4,17 +4,18 @@ import classes from './Chats.module.css'
 import { getChats } from './DataBase/database'
 import MessageCard from './MessageCard'
 
-const Chats = ({ newMessage }) => {
+const Chats = ({ newMessage, everyone }) => {
 
-    const [chats, setChats] = useState(getChats())
+    const [chats, setChats] = useState(getChats(everyone))
     const scrollRef = useRef()
 
     newMessage((newChats) => {
         setChats([...newChats])
-        // const newMessage = <MessageCard key={newChats.length()} data={newChats[newChats.length()-1]}/>
-        // scrollRef.current.insertAdjacentHTML('beforeend', newMessage)
     })
 
+    useEffect(() => {
+        scrollRef.current.scrollTop = scrollRef.current.scrollHeight
+    }, [])
 
     useEffect(() => {
         if (scrollRef.current.lastElementChild) {
@@ -27,6 +28,7 @@ const Chats = ({ newMessage }) => {
             }
         }
     })
+
     const content = chats.map((data, index) => {
         return (
             <MessageCard key={index} data={data} />

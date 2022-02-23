@@ -27,7 +27,7 @@ io.on('connection', socket => {
     socket.on('joinRoom', (roomId, user, callback) => {
         const { roomData, team, color } = addUser(roomId, { id: socket.id, ...user })
         socket.join(roomId)
-        callback(socket.id, roomData, team)
+        callback(socket.id, roomData, team, color)
         socket.broadcast.to(roomId).emit('changeOccured', roomData)
     })
 
@@ -37,30 +37,57 @@ io.on('connection', socket => {
     })
 
     socket.on('startGame', (roomId) => {
-        const roomData = createStatus(roomId)
-        io.to(roomId).emit('startGame', roomData)
+        const roomData = getRoom(roomId)
+        if (roomData.isRunning) {
+            io.to(roomId).emit('startGame', roomData)
+        }
+        else {
+            const updatedRoomData = createStatus(roomId)
+            io.to(roomId).emit('startGame', updatedRoomData)
+        }
     })
 
-    socket.on('sendMessage', (roomId, name, message) => {
+    socket.on('sendMessage', (forEveryone, roomId, name, color, team, message) => {
         const today = new Date()
-        const time = (today.getHours() % 12) + ":" + (today.getMinutes() < 10 ? '0' : '') + today.getMinutes() + (today.getHours() >= 12 ? ' PM' : ' AM')
-        socket.broadcast.to(roomId).emit('recieveMessage', name, time, message)
-        io.to(socket.id).emit('recieveMessage', 'You', time, message)
+        const time = ((today.getHours() % 13) + (today.getHours() >= 12 ? 1 : 0)) + ":" + (today.getMinutes() < 10 ? '0' : '') + today.getMinutes() + (today.getHours() >= 12 ? ' PM' : ' AM')
+        if (forEveryone) {
+            io.to(roomId).emit('recieveMessage', name, time, color, message, socket.id, true)
+        }
+        else {
+            const roomData = getRoom(roomId)
+            if (team) {
+                roomData.teamA.forEach(({ id }) => {
+                    io.to(id).emit('recieveMessage', name, time, color, message, socket.id, false)
+                })
+            }
+            else {
+                roomData.teamB.forEach(({ id }) => {
+                    io.to(id).emit('recieveMessage', name, time, color, message, socket.id, false)
+                })
+            }
+
+        }
     })
 
-    socket.on('setMovie', (roomId, movieName) => {
+    socket.on('setMovie', (roomId, movie) => {
+        const movieName = movie.toUpperCase()
         const roomData = setMovieName(roomId, movieName)
-        if (roomData.status.actingTeam) {
+        if (!roomData.status.actingTeam) {
             roomData.teamA.forEach(user => {
-                io.to(user.id).emit('getMovie', movieName, roomData.status.actor)
+                io.to(user.id).emit('getMovie', true, movieName, roomData.status.actor)
             });
+            roomData.teamB.forEach(user => {
+                if (!(roomData.status.actor.id === user.id)) {
+                    io.to(user.id).emit('getMovie', true, movieName.length, roomData.status.actor)
+                }
+            })
         }
         else {
             roomData.teamB.forEach(user => {
-                io.to(user.id).emit('getMovie', movieName, roomData.status.actor)
+                io.to(user.id).emit('getMovie', true, movieName, roomData.status.actor)
             });
         }
-        io.to(roomData.status.chooser.id).emit('getMovie', movieName, roomData.status.actor)
+        io.to(roomData.status.actor.id).emit('getMovie', true, movieName, roomData.status.actor)
     })
 })
 

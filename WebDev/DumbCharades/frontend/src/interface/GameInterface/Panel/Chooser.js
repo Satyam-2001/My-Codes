@@ -1,11 +1,13 @@
-import React, { Fragment, useState } from 'react'
+import React, { Fragment, useContext, useState } from 'react'
 import classes from './Chooser.module.css'
 import style from './Style.module.css'
 import Button from '../../../components/UI/Button'
 import TextInput from '../../../components/UI/TextInput'
+import UserContext from '../../../context/user-context'
 
-const Chooser = ({ isChooser, name, roomId, socket }) => {
+const Chooser = ({ isChooser, name }) => {
 
+    const {user , roomData} = useContext(UserContext)
     const [movieName , setMovieName] = useState('')
 
     const movieNameChangeHandler = (currentMovie) => {
@@ -13,7 +15,7 @@ const Chooser = ({ isChooser, name, roomId, socket }) => {
     }
 
     const postMovie = () => {
-        socket.emit('setMovie', roomId, movieName)
+        user.socket.emit('setMovie', roomData.id, movieName)
     }
 
     return (

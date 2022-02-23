@@ -1,10 +1,54 @@
-header{
+header {
     display: flex;
     flex-direction: row;
     height: 10%;
 }
 
-.title{
-    margin: 10px;
+.start-div {
+    box-sizing: content-box;
+    width: 22%;
+}
+
+.center-div {
+    display: flex;
+    flex-flow: row;
+    justify-content: center;
+    align-items: center;
+    width: 56%;
+}
+
+.end-div {
+    display: flex;
+    flex-flow: row;
+    justify-content: flex-end;
+    width: 22%;
+}
+
+.title {
+    align-self: flex-start;
+    margin: 5%;
+    width: 90%;
     height: auto;
+}
+
+.movie-div {
+    display: flex;
+    justify-self: center;
+    box-sizing: border-box;
+    text-align: center;
+    align-items: center;
+    width: fit-content;
+    height: 80%;
+    background-color: rgb(24, 26, 26);
+    border-radius: 10px;
+    padding: 0px 20px;
+}
+
+.movie {
+    display: inline-block;
+    line-height: normal;
+    color: white;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-size: x-large;
+    letter-spacing: 5px;
 }

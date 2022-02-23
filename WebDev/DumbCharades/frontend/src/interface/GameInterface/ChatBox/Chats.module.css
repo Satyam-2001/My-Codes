@@ -1,5 +1,6 @@
 .chats {
-    flex: 1 1 auto;
+    /* flex: 1 1 auto; */
     overflow-y: auto;
-    margin-bottom: 70px;
+    margin-bottom: 50px;
+    scrollbar-width: thin;
 }

@@ -3,29 +3,36 @@ import Chooser from './Chooser'
 import Actor from './Actor'
 import classes from './Panel.module.css'
 import UserContext from '../../../context/user-context'
+import StatusContext from '../../../context/status-context'
 
-const Panel = ({ setMovie }) => {
+const Panel = (props) => {
 
-    const {user , roomData} = useContext(UserContext)
+    const { user, roomData } = useContext(UserContext)
 
-    const [gameStatus, setStatus] = useState('Chooser')
-    const [actorStatus, setActorStatus] = useState(null)
-
-    console.log(roomData.status.chooser.name)
+    const [actor, setActor] = useState(null)
+    const [chooser, setChooser] = useState(null)
 
     useEffect(() => {
-        user.socket.on('getMovie', (movieName, actor) => {
-            setActorStatus({ movieName, actor })
-            setStatus('Actor')
-            setMovie(movieName)
+        setChooser(roomData.status.chooser)
+        setActor(roomData.status.actor)
+        if (roomData.status.actor) {
+            props.Connector.Provider({ isActing: true, movie: roomData.status.movie })
+        }
+    }, [])
+
+    useEffect(() => {
+        user.socket.on('getMovie', (alias, movie, actor) => {
+            setChooser(null)
+            setActor(actor)
+            props.Connector.Provider({ isActing: true, movie })
         })
         return () => { user.socket.off('getMovie') }
     }, [])
 
     return (
         <div className={classes.panel}>
-            {gameStatus === 'Chooser' && <Chooser isChooser={roomData.status.chooser.id === user.id} name={roomData.status.chooser.name} roomId={roomData.id} socket={user.socket} />}
-            {gameStatus === 'Actor' && <Actor isActor={actorStatus.actor.id === user.id} movieName={actorStatus.movieName} actor={actorStatus.actor.name} />}
+            {chooser && <Chooser isChooser={chooser.id === user.id} name={chooser.name} />}
+            {actor && <Actor isActor={actor.id === user.id} actor={actor.name} />}
         </div>
     )
 }

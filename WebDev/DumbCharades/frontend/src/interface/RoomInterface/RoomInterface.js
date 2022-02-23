@@ -14,20 +14,17 @@ const RoomInterface = (props) => {
 
     useEffect(() => {
         socket.on('changeOccured', (roomData) => {
-            console.log(roomData)
             setRoomData(roomData)
         })
-
         return () => { socket.off('changeOccured') }
     }, [])
 
     const swapTeamHandler = () => {
         socket.emit('swapTeam', roomData.id, team)
-        setTeam(!team)
+        setTeam(team => !team)
     }
 
     const gameStartHandler = () => {
-        console.log('start')
         socket.emit('startGame', roomData.id)
     }
 
@@ -36,7 +33,7 @@ const RoomInterface = (props) => {
             <PageDesign>
                 <div className={classes.main}>
                     {roomData && <Team name='A' team={team} data={roomData.teamA} className={classes.content} swapTeam={swapTeamHandler} />}
-                    <UserSettings gameStartHandler={gameStartHandler}/>
+                    <UserSettings gameStartHandler={gameStartHandler} />
                     {roomData && <Team name='B' team={!team} data={roomData.teamB} className={classes.content} swapTeam={swapTeamHandler} />}
                 </div>
             </PageDesign>

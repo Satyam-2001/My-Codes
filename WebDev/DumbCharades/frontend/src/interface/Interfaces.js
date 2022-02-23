@@ -8,7 +8,7 @@ const Interfaces = (props) => {
     const data = useContext(UserContext)
 
     const [started, setStart] = useState(false)
-    const [roomData, setRoomData] = useState(data.roomData) 
+    const [roomData, setRoomData] = useState(data.roomData)
 
     useEffect(() => {
         data.user.socket.on('startGame', (roomData) => {

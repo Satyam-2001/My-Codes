@@ -19,53 +19,55 @@ const colorsArray = [
     'rgb(51,51,204)',
 ]
 
-const createNewRoom = (roomId,userData) => {
+const createNewRoom = (roomId, userData) => {
     const roomData = {
         id: roomId,
         joined: 0,
         status: null,
+        isRunning: false,
         admin: userData.id,
-        teamA: [{...userData , color: colorsArray[0]}],
+        teamA: [{ ...userData, color: colorsArray[0] }],
         teamB: []
     }
     users.push(roomData)
-    return { roomData , color: colorsArray[0]}
+    return { roomData, color: colorsArray[0] }
 
 }
 
 const getRoom = roomId => {
-    return users.find(room => room.id === roomId)
+    const index = users.findIndex(room => room.id === roomId)
+    return users[index]
 }
 
-const addUser = (roomId,userData) => {
+const addUser = (roomId, userData) => {
     const index = users.findIndex(room => room.id === roomId)
     users[index].joined = (users[index].joined + 1) % colorsArray.length
     const color = colorsArray[users[index].joined]
 
-    if(users[index].teamA.length <=  users[index].teamB.length){
-        users[index].teamA.push({...userData , color})
-        return {roomData: users[index], team: true , color}
+    if (users[index].teamA.length <= users[index].teamB.length) {
+        users[index].teamA.push({ ...userData, color })
+        return { roomData: users[index], team: true, color }
     }
-    users[index].teamB.push({...userData , color})
-    return {roomData: users[index], team: false , color}
+    users[index].teamB.push({ ...userData, color })
+    return { roomData: users[index], team: false, color }
 }
 
-const removeUser = (roomId,userId) => {
+const removeUser = (roomId, userId) => {
     const room = getRoom(roomId)
 }
 
-const swapTeam = (roomId,userId,team) => {
+const swapTeam = (roomId, userId, team) => {
     const index = users.findIndex(room => room.id === roomId)
-    if(team){
+    if (team) {
         const userIndex = users[index].teamA.findIndex(user => user.id === userId)
-        if(userIndex !== -1){
+        if (userIndex !== -1) {
             users[index].teamB.push(users[index].teamA[userIndex])
             users[index].teamA.splice(userIndex, 1)
         }
     }
     else {
         const userIndex = users[index].teamB.findIndex(user => user.id === userId)
-        if(userIndex !== -1){
+        if (userIndex !== -1) {
             users[index].teamA.push(users[index].teamB[userIndex])
             users[index].teamB.splice(userIndex, 1)
         }
@@ -75,18 +77,32 @@ const swapTeam = (roomId,userId,team) => {
 
 const createStatus = (roomId) => {
     const index = users.findIndex(room => room.id === roomId)
+    users[index].isRunning = true
     users[index].status = {
-        actingTeam : true,
-        actor: users[index].teamB[0],
+        actingTeam: true,
+        actor: null,
         chooser: users[index].teamA[0],
         movie: null,
-        time: new Date()
+        time: new Date(),
+        actorCountA: 0,
+        chooserCountA: 1,
+        actorCountB: 0,
+        chooserCountB: 1
     }
     return users[index]
 }
 
-const setMovieName = (roomId,movieName) => {
+const setMovieName = (roomId, movieName) => {
     const index = users.findIndex(room => room.id === roomId)
+    users[index].status.chooser = null
+    if (users[index].status.actingTeam) {
+        users[index].status.actor = users[index].teamB[users[index].status.actorCountB]
+        users[index].status.actorCountB = (users[index].status.actorCountB + 1) % users[index].teamB.length
+    }
+    else {
+        users[index].status.actor = users[index].teamA[users[index].status.actorCountA]
+        users[index].status.actorCountA = (users[index].status.actorCountA + 1) % users[index].teamA.length
+    }
     users[index].status.movie = movieName
     users[index].status.actingTeam = !users[index].status.actingTeam
     return users[index]

@@ -17,11 +17,11 @@ const JoinRoom = (props) => {
             name: localStorage.getItem('name') || 'User',
             avatar: localStorage.getItem('avatar') || 1
         }
-        socket.emit('joinRoom', roomId, user, (id, roomData, team) => {
+        socket.emit('joinRoom', roomId, user, (id, roomData, team , color) => {
             setData({
-                user: { id, ...user, socket },
+                user: { id, ...user, socket , color },
                 roomData,
-                team
+                team,
             })
         })
     }

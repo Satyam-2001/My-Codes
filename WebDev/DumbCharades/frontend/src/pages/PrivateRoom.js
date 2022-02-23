@@ -15,9 +15,9 @@ const PrivateRoom = (props) => {
             name: localStorage.getItem('name'),
             avatar: localStorage.getItem('avatar') || 1
         }
-        socket.emit('createRoom', user, (id, roomData, team) => {
+        socket.emit('createRoom', user, (id, roomData, team , color) => {
             setData({
-                user: { id, ...user, socket },
+                user: { id, ...user, socket, color },
                 roomData,
                 team
             })
