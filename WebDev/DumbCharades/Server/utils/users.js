@@ -19,6 +19,11 @@ const colorsArray = [
     'rgb(51,51,204)',
 ]
 
+const parseRoomData = (roomData) => {
+    const {id , teamA , teamB} = roomData
+    return {id , admin , isRunning , teamA , teamB}
+}
+
 const createNewRoom = (roomId, userData) => {
     const roomData = {
         id: roomId,
@@ -41,6 +46,7 @@ const getRoom = roomId => {
 
 const addUser = (roomId, userData) => {
     const index = users.findIndex(room => room.id === roomId)
+    if (index === -1) return {error : 'Room not exist'}
     users[index].joined = (users[index].joined + 1) % colorsArray.length
     const color = colorsArray[users[index].joined]
 
@@ -87,7 +93,7 @@ const createStatus = (roomId) => {
         actorCountA: 0,
         chooserCountA: 1,
         actorCountB: 0,
-        chooserCountB: 1
+        chooserCountB: 0
     }
     return users[index]
 }
@@ -108,6 +114,20 @@ const setMovieName = (roomId, movieName) => {
     return users[index]
 }
 
+const setChooser = (roomId) => {
+    const index = users.findIndex(room => room.id === roomId)
+    users[index].status.actor = null
+    if (users[index].status.actingTeam) {
+        users[index].status.chooser = users[index].teamA[users[index].status.chooserCountA]
+        users[index].status.chooserCountA = (users[index].status.chooserCountA + 1) % users[index].teamA.length
+    }
+    else {
+        users[index].status.chooser = users[index].teamB[users[index].status.chooserCountB]
+        users[index].status.chooserCountB = (users[index].status.chooserCountB + 1) % users[index].teamB.length
+    }
+    return users[index]
+}
+
 module.exports = {
     createNewRoom,
     getRoom,
@@ -115,5 +135,6 @@ module.exports = {
     removeUser,
     swapTeam,
     createStatus,
-    setMovieName
+    setMovieName,
+    setChooser
 }

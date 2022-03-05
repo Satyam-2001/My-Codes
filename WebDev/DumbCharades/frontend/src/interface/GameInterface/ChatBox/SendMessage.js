@@ -4,19 +4,21 @@ import classes from './SendMessage.module.css'
 
 const SendMessage = (props) => {
 
-    const { user, team, roomData } = useContext(UserContext)
+    const { user, team, roomData, socket } = useContext(UserContext)
 
     const [message, setMessage] = useState('')
     const [sendActive, setSendActive] = useState(false)
 
     const sendMessage = () => {
-        user.socket.emit('sendMessage', props.everyone, roomData.id, user.name, user.color, team, message)
+        console.log( team);
+        
+        socket.emit('sendMessage', props.everyone, roomData.id, user.name, user.color, team, message)
         setMessage('')
         setSendActive(false)
     }
 
     const keyDownhandler = (event) => {
-        // event.preventDefault()
+
         if (event.key === 'Enter' && message.trim()) {
             sendMessage()
         }

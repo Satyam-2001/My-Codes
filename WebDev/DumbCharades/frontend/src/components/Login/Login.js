@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react'
-import LoginBox from '../Cards/LoginBox'
 import Button from '../UI/Button'
 import PageDesign from '../Cards/PageDesign'
 import TextInput from '../UI/TextInput'
 import Avatar from './Avatar'
 
-const PrivateRoom = (props) => {
+const Login = (props) => {
     const [isValid, setValid] = useState(true)
     const [name, setName] = useState('')
 
@@ -32,13 +31,13 @@ const PrivateRoom = (props) => {
 
     return (
         <PageDesign>
-            <LoginBox>
+            <div className={`login-box ${props.className}`}>
                 <Avatar />
                 <TextInput name='Name' value={name} onChange={nameChangeHandler} valid={isValid} />
                 <Button onClick={createRoomHandler}>{props.name}</Button>
-            </LoginBox>
+            </div>
         </PageDesign>
     )
 }
 
-export default PrivateRoom
+export default Login

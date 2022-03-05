@@ -3,11 +3,10 @@ import Chooser from './Chooser'
 import Actor from './Actor'
 import classes from './Panel.module.css'
 import UserContext from '../../../context/user-context'
-import StatusContext from '../../../context/status-context'
 
 const Panel = (props) => {
 
-    const { user, roomData } = useContext(UserContext)
+    const { user, roomData, socket } = useContext(UserContext)
 
     const [actor, setActor] = useState(null)
     const [chooser, setChooser] = useState(null)
@@ -21,13 +20,24 @@ const Panel = (props) => {
     }, [])
 
     useEffect(() => {
-        user.socket.on('getMovie', (alias, movie, actor) => {
+        socket.on('getMovie', (alias, movie, actor) => {
             setChooser(null)
             setActor(actor)
-            props.Connector.Provider({ isActing: true, movie })
+            props.Connector.Provider({ alias, isActing: true, movie })
         })
-        return () => { user.socket.off('getMovie') }
+        return () => { socket.off('getMovie') }
     }, [])
+
+    useEffect(() => {
+        socket.on('getChooser', (alias, chooser) => {
+            setChooser(chooser)
+            setActor(null)
+            props.Connector.Provider({isActing: false})
+        })
+        return () => { socket.off('getMovie') }
+    }, [])
+
+
 
     return (
         <div className={classes.panel}>
@@ -36,5 +46,5 @@ const Panel = (props) => {
         </div>
     )
 }
-
-export default React.memo(Panel)
+const Memo =  React.memo(Panel)
+export default Memo

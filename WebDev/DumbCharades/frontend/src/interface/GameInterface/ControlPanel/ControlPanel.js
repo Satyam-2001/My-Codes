@@ -21,36 +21,36 @@ const ControlPanel = (props) => {
         }
     })
 
-return (
-    <div className={classes['control-panel']}>
-        {/* <i class="material-icons">mic</i> */}
-        <div className={classes.start}>
-            <button className={classes['icon-button']}>
+    return (
+        <div className={classes['control-panel']}>
+            {/* <i class="material-icons">mic</i> */}
+            <div className={classes.start}>
+                {/* <button className={classes['icon-button']}>
                 <i className={`material-icons ${classes.circle}`}>mic</i>
-            </button>
+            </button> */}
+            </div>
+            <div className={classes.center}>
+                <button className={classes['icon-button']}>
+                    <i className={`material-icons ${classes.circle}`}>mic</i>
+                </button>
+            </div>
+            <div className={classes.end}>
+                <button className={`${classes['chat-button']} ${props.chatEveryoneBoxOpen && classes.pressed}`} onClick={props.chatBoxEveryonePressed}>
+                    <i className={`material-icons ${classes.icon}`}>chat</i>
+                    <p className={classes['chat-button-name']}>Everyone</p>
+                    {unreadMessageEveryone !== 0 && <p className={classes['unread-count']}>{unreadMessageEveryone}</p>}
+                </button>
+                <button className={`${classes['chat-button']} ${props.chatTeamBoxOpen && classes.pressed}`} onClick={props.chatBoxTeamPressed}>
+                    <i className={`material-icons ${classes.icon}`}>chat</i>
+                    <p className={classes['chat-button-name']}>Team</p>
+                    {unreadMessageTeam !== 0 && <p className={classes['unread-count']}>{unreadMessageTeam}</p>}
+                </button>
+                <button className={classes['icon-button']} onClick={props.joiningInfoPressed}>
+                    <i className={`material-icons ${classes.circle}`}>person_add</i>
+                </button>
+            </div>
         </div>
-        <div className={classes.center}>
-            <button className={classes['icon-button']}>
-                <i className={`material-icons ${classes.circle}`}>mic</i>
-            </button>
-        </div>
-        <div className={classes.end}>
-            <button className={`${classes['chat-button']} ${props.chatEveryoneBoxOpen && classes.pressed}`} onClick={props.chatBoxEveryonePressed}>
-                <i className={`material-icons ${classes.icon}`}>chat</i>
-                <p className={classes['chat-button-name']}>Everyone</p>
-                {unreadMessageEveryone !== 0 && <p className={classes['unread-count']}>{unreadMessageEveryone}</p>}
-            </button>
-            <button className={`${classes['chat-button']} ${props.chatTeamBoxOpen && classes.pressed}`} onClick={props.chatBoxTeamPressed}>
-                <i className={`material-icons ${classes.icon}`}>chat</i>
-                <p className={classes['chat-button-name']}>Team</p>
-                {unreadMessageTeam !== 0 && <p className={classes['unread-count']}>{unreadMessageTeam}</p>}
-            </button>
-            <a>
-                <i className={`material-icons ${classes.icon}`}>person_add</i>
-            </a>
-        </div>
-    </div>
-)
+    )
 }
 
 

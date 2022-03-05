@@ -8,7 +8,7 @@ const UserBoard = (props) => {
     console.log(props.teamData)
 
     const board = props.teamData.map(user => {
-        return <InfoCard key={user.id} name={user.name} avatar={user.avatar} color={user.color}/>
+        return <InfoCard key={user.id} user={user} stream={props.stream} />
     })
 
     return(

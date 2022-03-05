@@ -14,10 +14,10 @@
     font-size: 200%;
 }
 
-/* .image{
-    width: 200%;
-    height: 200%;
-} */
+.image{
+    width: 150px;
+    height: 150px;
+}
 
 .change-avatar :focus,
 .change-avatar :hover{

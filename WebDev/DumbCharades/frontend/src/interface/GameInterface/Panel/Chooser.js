@@ -7,15 +7,21 @@ import UserContext from '../../../context/user-context'
 
 const Chooser = ({ isChooser, name }) => {
 
-    const {user , roomData} = useContext(UserContext)
+    const {roomData, socket} = useContext(UserContext)
     const [movieName , setMovieName] = useState('')
 
     const movieNameChangeHandler = (currentMovie) => {
-        setMovieName(currentMovie)
+        setMovieName(currentMovie.toUpperCase())
     }
 
     const postMovie = () => {
-        user.socket.emit('setMovie', roomData.id, movieName)
+        socket.emit('setMovie', roomData.id, movieName)
+    }
+
+    const keyPressHandler = (key) => {
+        if (key === 'Enter') {
+            postMovie()
+        }
     }
 
     return (
@@ -23,8 +29,8 @@ const Chooser = ({ isChooser, name }) => {
             {isChooser &&
                 <div className={classes['choose-movie']}>
                     <p className={style.text}>Choose a movie</p>
-                    <TextInput name='Movie Name' valid={true} value={movieName} onChange={movieNameChangeHandler}/>
-                    <Button width='60%' onClick={postMovie}>POST</Button>
+                    <TextInput name='Movie Name' valid={true} value={movieName} onChange={movieNameChangeHandler} onKeyDown={keyPressHandler} />
+                    <Button width='60%' onClick={postMovie} backgroundColor='rgba(27,27,27,0.5)'>POST</Button>
                 </div>
             }
             {!isChooser &&

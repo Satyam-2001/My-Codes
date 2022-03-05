@@ -5,7 +5,9 @@
         "functional": "cpp",
         "random": "cpp",
         "memory_resource": "cpp",
-        "regex": "cpp"
+        "regex": "cpp",
+        "iostream": "cpp",
+        "utility": "cpp"
     },
     "C_Cpp.errorSquiggles": "Enabled"
 }

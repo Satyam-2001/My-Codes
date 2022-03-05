@@ -3,10 +3,14 @@ import classes from './PageDesign.module.css'
 import title from '../../assets/title.gif'
 
 const PageDesign = (props) => {
-    return(
+    return (
         <div className={classes.page}>
-            <img className={classes.title} src={title} alt='DumbCharades' />
-            {props.children}
+            <div className={classes['title-div']}>
+                <img className={classes.title} src={title} alt='DumbCharades' />
+            </div>
+            <div className={classes.content}>
+                {props.children}
+            </div>
         </div>
     )
 }
