@@ -1,22 +1,23 @@
 import React, { useContext, useEffect, useRef, useState } from 'react'
 import UserContext from '../../../context/user-context'
+import SocketContext from '../../../context/socket-context'
+import DataContext from '../../../context/data-context'
 import classes from './WordInput.module.css'
 
 const WordInput = (props) => {
 
-    console.log(props.movie);
-
-    const [word, setWord] = useState(props.movie)
-    const { socket, user, roomData } = useContext(UserContext)
+    const [word, setWord] = useState(props.word)
+    const user = useContext(UserContext)
+    const socket = useContext(SocketContext)
+    const roomData = useContext(DataContext)
+    const { id: roomID } = roomData
     const inputRef = useRef()
 
     const submitHandler = (event) => {
 
-        console.log(event.key);
-        
         if (event.key === 'Enter' && word.indexOf('_') === -1) {
-            socket.emit('guessedWord', roomData.id, user, word)
-            setWord(props.movie)
+            socket.emit('guessedWord', roomID, user, word)
+            setWord(props.word)
         }
     }
 
@@ -25,18 +26,18 @@ const WordInput = (props) => {
         let guessedWord = event.target.value.toUpperCase()
         const wordLength = guessedWord.indexOf('_')
         let i = 0
-        if (guessedWord.length < props.movie.length) {
-            while (i<guessedWord.length) {
-                if (props.movie[i] === ' ' && guessedWord[i] !== ' ') {
-                    guessedWord = guessedWord.substr(0,i-1) + '_ ' + guessedWord.substr(i,guessedWord.length-1)
+        if (guessedWord.length < props.word.length) {
+            while (i < guessedWord.length) {
+                if (props.word[i] === ' ' && guessedWord[i] !== ' ') {
+                    guessedWord = guessedWord.substr(0, i - 1) + '_ ' + guessedWord.substr(i, guessedWord.length - 1)
                     i++;
                 }
                 i++;
             }
-            guessedWord += props.movie.substr(guessedWord.length, props.movie.length - 1)
+            guessedWord += props.word.substr(guessedWord.length, props.word.length - 1)
         }
         else if (wordLength !== -1) {
-            guessedWord = guessedWord.substr(0, wordLength) + props.movie.substr(wordLength, props.movie.length - 1)
+            guessedWord = guessedWord.substr(0, wordLength) + props.word.substr(wordLength, props.word.length - 1)
         }
         setWord(guessedWord)
     }
@@ -54,7 +55,7 @@ const WordInput = (props) => {
     }, [word])
 
     useEffect(() => {
-        setWord(props.movie)
+        setWord(props.word)
     }, [])
 
     return (

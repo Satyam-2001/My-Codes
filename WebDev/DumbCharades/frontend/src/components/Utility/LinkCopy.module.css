@@ -4,7 +4,7 @@
     flex-direction: row;
     justify-content: space-between;
     color: white;
-    box-sizing: content-box;
+    box-sizing: border-box;
     background-color: rgb(30, 31, 32);
     margin-top: 10px;
     height: fit-content;

@@ -1,9 +1,0 @@
-.setting {
-    display: flex;
-    flex-direction: column;
-    flex: 1 1 25%;
-}
-
-.link-copy {
-    margin-top: 50px !important;
-}

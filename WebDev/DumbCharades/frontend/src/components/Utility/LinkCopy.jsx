@@ -1,13 +1,13 @@
 import React, {useState,useContext} from 'react'
 import classes from './LinkCopy.module.css'
-import UserContext from '../../context/user-context'
+import RoomContext from '../../context/room-context'
+import DataContext from '../../context/data-context'
 
 const LinkCopy = (props) => {
 
-    const { user , roomData } = useContext(UserContext)
     const [copyIcon , setCopyIcon] = useState(false)
-
-    const link = `http://localhost:3000/${roomData.id}`
+    
+    const link = `http://localhost:3000/${props.roomID}`
 
     const copyLink = (event) => {
         navigator.clipboard.writeText(link);

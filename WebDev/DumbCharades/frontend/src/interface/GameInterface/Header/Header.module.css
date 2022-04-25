@@ -2,6 +2,14 @@ header {
     display: flex;
     flex-direction: row;
     height: 10%;
+    /* background-color: rgba(15, 24, 24, 0.9); */
+    background-color: rgb(17, 27, 33);
+    /* background-color: rgba(32,44,51,0.9); */
+
+    /* box-shadow: 0 6px 6px rgba(196, 194, 194, 0.6); */
+    border-style: solid;
+    border-width: 0px 0px 1px 0px;
+    /* border-color: rgb(203, 243, 243); */
 }
 
 .start-div {
@@ -31,7 +39,7 @@ header {
     height: auto;
 }
 
-.movie-div {
+.word-div {
     display: flex;
     justify-self: center;
     box-sizing: border-box;
@@ -39,12 +47,17 @@ header {
     align-items: center;
     width: fit-content;
     height: 80%;
-    background-color: rgb(24, 26, 26);
+    /* background-color: rgb(32, 44, 51); */
+    /* background-color: rgba(24,34,41,0.9); */
+    background-color: rgb(32, 47, 58);
+    border-style: solid;
+    border-color: aliceblue;
+    border-width: 1px;
     border-radius: 10px;
     padding: 0px 20px;
 }
 
-.movie {
+.word {
     display: inline-block;
     line-height: normal;
     color: white;

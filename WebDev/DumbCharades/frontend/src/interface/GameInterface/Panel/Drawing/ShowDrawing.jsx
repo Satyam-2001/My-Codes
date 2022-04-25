@@ -1,10 +1,11 @@
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import classes from './ShowDrawing.module.css'
-import UserContext from '../../../../context/user-context'
+import SocketContext from '../../../../context/socket-context'
 import floodFill from './FloodFill/floodFill'
 
 const ShowDrawing = (props) => {
-    const { socket } = useContext(UserContext)
+
+    const socket = useContext(SocketContext)
     const [sizeRatio, setSizeRatio] = useState({ width: 1, height: 1 })
     const canvasRef = useRef(null);
     const contextRef = useRef(null);

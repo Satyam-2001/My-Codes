@@ -9,6 +9,23 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+i {
+  box-sizing: border-box;
+  color: white;
+  text-align: center;
+  cursor: pointer;
+  user-select: none;
+  margin: 10px;
+  /* supported by Chrome and Opera */
+  -webkit-user-select: none;
+  /* Safari */
+  -khtml-user-select: none;
+  /* Konqueror HTML */
+  -moz-user-select: none;
+  /* Firefox */
+  -ms-user-select: none;
+}
+
 ::-webkit-scrollbar {
   width: 6px;
 }
@@ -34,15 +51,50 @@ body {
   padding: 40px;
   margin: auto;
   margin-top: 40px;
-  background: rgba(0,0,0,.5);
+  background: rgba(0, 0, 0, .5);
   box-sizing: border-box;
-  box-shadow: 0 15px 25px rgba(0,0,0,.6);
+  box-shadow: 0 15px 25px rgba(0, 0, 0, .6);
   border-radius: 10px;
 }
 
+.icon-button {
+  background-color: transparent;
+  border: none;
+  width: fit-content;
+}
+
+.circle {
+  display: flex;
+  flex-flow: row;
+  justify-content: center;
+  align-items: center;
+  width: 45px;
+  height: 45px;
+  margin: auto;
+  background-color: rgb(32, 47, 58);
+  color: white;
+  border-radius: 50%;
+}
+
+.circle_hover:hover {
+  background-color: rgb(44, 55, 70);
+}
+
+.side-heading {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  height: 60px;
+  width: 100%;
+  background-color: rgb(31, 44, 52);
+  padding: 0px 10px;
+  box-sizing: border-box;
+}
+
 @media only screen and (max-width: 600px) {
-  .login-box{
-      width: 90%;
+  .login-box {
+    width: 90%;
   }
 }
 

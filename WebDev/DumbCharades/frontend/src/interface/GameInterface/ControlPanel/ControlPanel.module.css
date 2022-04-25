@@ -7,8 +7,8 @@
     position: fixed;
     text-align: center;
     white-space: nowrap;
+    background-color: rgb(17, 27, 33);
     z-index: 100;
-    background-color: rgb(11, 15, 15);
     flex-direction: row;
     padding: 10px;
 }
@@ -54,82 +54,20 @@
     width: fit-content;
 }
 
-.chat-button {
-    display: flex;
-    flex-flow: row;
-    justify-content: center;
-    align-items: center;
-    height: 80%;
-    margin: 10px;
-    background-color: rgb(37, 37, 37);
+.round {
+    background-color: rgba(95, 166, 248, 0.5);
     color: white;
+    letter-spacing: 2px;
+    padding: 5px 8px;
     border-radius: 5px;
-    cursor: pointer;
-    border: none;
 }
 
-.chat-button-name {
-    display: flex;
-    flex-flow: row;
-    justify-content: center;
-    align-items: center;
-    font-size: large;
-    margin-right: 10px;
-}
-
-.circle {
-    display: flex;
-    flex-flow: row;
-    justify-content: center;
-    align-items: center;
-    margin: auto;
-    height: 50px;
-    width: 50px;
-    color: white;
+.unread-message {
+    position: absolute;
+    top: 0px;
+    /* right: 0px; */
+    width: 20px;
+    aspect-ratio: 1/1;
+    background-color: aqua;
     border-radius: 50%;
-    background-color: rgb(27, 27, 27);
-}
-
-.chat-button:hover {
-    background-color: rgb(57, 57, 47);
-}
-
-.circle:hover {
-    background-color: rgb(57, 57, 57);
-}
-
-i {
-    box-sizing: border-box;
-    color: white;
-    text-align: center;
-    cursor: pointer;
-    user-select: none;
-    margin: 10px;
-    /* supported by Chrome and Opera */
-    -webkit-user-select: none;
-    /* Safari */
-    -khtml-user-select: none;
-    /* Konqueror HTML */
-    -moz-user-select: none;
-    /* Firefox */
-    -ms-user-select: none;
-}
-
-.pressed {
-    background-color: rgb(4, 131, 170);
-}
-
-.pressed:hover {
-    background-color: rgb(3, 75, 97);
-}
-
-.unread-count {
-    display: flex;
-    align-items: center;
-    background-color: rgb(4, 131, 170);
-    border-radius: 10px;
-    width: fit-content;
-    padding: 0px 5px;
-    height: 20px;
-    margin: 5px;
 }

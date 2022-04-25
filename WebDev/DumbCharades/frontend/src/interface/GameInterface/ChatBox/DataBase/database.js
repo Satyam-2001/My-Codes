@@ -1,31 +1,31 @@
-const chatsEveryone = []
-const chatsTeam = []
+const chats = {}
 
-export const getChats = (forEveryone) => {
-    if (forEveryone){
-        return chatsEveryone
+export const getChats = (recieversID) => {
+    if (chats[recieversID]) {
+        return chats[recieversID]
     }
-    return chatsTeam
+    return []
 }
 
-export const addChats = (forEveryone, name, time, color, message, id, isMe, showName) => {
-    if (forEveryone) {
-        chatsEveryone.push([name, time, color, message, id, isMe, showName])
+export const addChats = (messageID, messageInfo) => {
+    if (chats[messageID] === undefined) {
+        chats[messageID] = []
     }
-    else {
-        chatsTeam.push([name, time, color, message, id, isMe, showName])
+    if (messageInfo.group) {
+        const length = chats[messageID].length
+        messageInfo.showName = length === 0 || chats[messageID][length - 1].sendersID !== messageInfo.sendersID
     }
+    chats[messageID].push(messageInfo)
 }
 
-export const isLastElementSame = (id, forEveryone) => {
-    if (forEveryone){
-        return (chatsEveryone.length === 0 || !(chatsEveryone[chatsEveryone.length - 1][4] === id))
-    }
-    return (chatsTeam.length === 0 || !(chatsTeam[chatsTeam.length - 1][4] === id))
+export const lastMessage = (messageID) => {
+    if (chats[messageID] === undefined) return undefined
+    const length = chats[messageID].length
+    return chats[messageID][length - 1]
 }
 
 export default {
     getChats,
     addChats,
-    isLastElementSame
+    lastMessage
 }

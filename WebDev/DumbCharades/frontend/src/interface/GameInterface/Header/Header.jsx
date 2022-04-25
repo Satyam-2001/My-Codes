@@ -1,21 +1,30 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useReducer, useState } from 'react'
 import classes from './Header.module.css'
 import title from '../../../assets/title.gif'
 import Timer from '../../../components/Utility/Timer'
 import WordInput from './WordInput'
+import DataContext from '../../../context/data-context'
+
+const initialWordStatus = {
+    isPerforming: false,
+    word: '',
+    alias: false,
+}
+
+const wordReducer = (wordStatus, action) => {
+    return action
+}
 
 const Header = (props) => {
 
-    const [isActing, setIsActing] = useState(false)
-    const [movie, setMovie] = useState('')
-    const [alias, setAlias] = useState(false)
+    const roomData = useContext(DataContext)
+    const [wordStatus, dispatcWordStatus] = useReducer(wordReducer, initialWordStatus)
+    const [timerStatus, setTimerStatus] = useState(null)
 
-    props.Connector.Consumer(({ isActing, movie, alias }) => {
-        if (isActing){
-            setMovie(movie)
-            setAlias(alias)
-        }
-        setIsActing(isActing)
+    props.Connector.Consumer((wordStatus) => {
+        dispatcWordStatus(wordStatus)
+        if (wordStatus.isPerforming) { setTimerStatus(roomData.duration) }
+        else { setTimerStatus(null) }
     })
 
     return (
@@ -24,15 +33,21 @@ const Header = (props) => {
                 <img className={classes.title} src={title} alt='DumbCharades' />
             </div>
             <div className={classes['center-div']}>
-                {isActing && alias &&
-                    <div className={classes['movie-div']}>
-                        <p className={classes.movie}>{movie}</p>
-                    </div>
+                {wordStatus.isPerforming ?
+                    (
+                        wordStatus.alias ?
+                            (
+                                <div className={classes['word-div']}>
+                                    <p className={classes.word}>{wordStatus.word}</p>
+                                </div>
+                            )
+                            : <WordInput word={wordStatus.word} />
+                    )
+                    : undefined
                 }
-                {isActing && !alias && <WordInput movie={movie} />}
             </div>
             <div className={classes['end-div']}>
-                {/* <Timer time={10} timeOutHandler={props.timeOutHandler}/> */}
+                {timerStatus ? <Timer time={timerStatus} setTimerStatus={setTimerStatus} initiator={wordStatus.initiator} /> : undefined}
             </div>
         </header>
     )

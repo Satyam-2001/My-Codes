@@ -1,7 +1,7 @@
 const express = require("express");
 const http = require("http");
 const socketio = require("socket.io");
-const { createNewRoom, addUser, swapTeam, getRoom, createStatus, setMovieName, setChooser } = require('./utils/users')
+const { createNewRoom, addUser, swapTeam, getRoom, createStatus, setMovieName, setChooser, setGameType, setRounds, setDuration, removeUser } = require('./utils/users')
 const { nanoid } = require('nanoid')
 
 const port = process.env.PORT || 4001;
@@ -24,30 +24,75 @@ const hideWord = (word) => {
     return str
 }
 
+const currentTime = () => {
+    const today = new Date()
+    const time = ((today.getHours() % 13) + (today.getHours() >= 12 ? 1 : 0)) + ":" + (today.getMinutes() < 10 ? '0' : '') + today.getMinutes() + (today.getHours() >= 12 ? ' pm' : ' am')
+    return time
+}
+
 io.on('connection', socket => {
 
     socket.on('createRoom', (user, callback) => {
         const roomId = nanoid(10)
-        const { roomData, color } = createNewRoom(roomId, { id: socket.id, ...user })
+        const { roomData, color } = createNewRoom(roomId, { id: socket.id, ...user, mic: false })
         socket.join(roomId)
-        const data = { user: { id: socket.id, color, ...user }, roomData, team: true }
+        const data = { user: { id: socket.id, color, ...user, mic: false }, roomData, team: true }
         callback(data)
     })
 
-    socket.on('joinRoom', (roomId, user, callback) => {
-        const { roomData, team, color } = addUser(roomId, { id: socket.id, ...user })
-        socket.join(roomId)
-        const data = { user: { id: socket.id, color, ...user }, roomData, team }
-        callback(data)
-        // socket.broadcast.to(roomId).emit('userJoined', roomData)
+    socket.on('joinRoom', (roomID, user, callback) => {
+        const gameData = addUser(roomID, { id: socket.id, ...user, mic: false })
+        if (gameData.error) {
+            socket.emit('error', gameData.error)
+        }
+        else {
+            const { roomData, team, color, allUsers } = gameData
+            socket.join(roomID)
+            const data = { user: { id: socket.id, color, ...user, mic: false }, roomData, team, allUsers }
+            callback(data)
+            if (!roomData.isRunning) {
+                socket.broadcast.to(roomID).emit('userJoinedRoom', data.user, team)
+            }
+        }
     })
 
-    socket.on('sending signal', (user, team, callerID, signal) => {
-        io.to(callerID).emit('userJoined', user, team, signal)
+    socket.on('userJoinedGame', (roomID, user, team) => {
+        socket.broadcast.to(roomID).emit('userJoinedGame', user, team)
+    })
+
+    socket.on('mic', (roomID, userID, mic) => {
+        io.to(roomID).emit('mic' + String(userID), mic)
+    })
+
+    socket.on('gameType', (roomID, gameType) => {
+        setGameType(roomID, gameType)
+        io.to(roomID).emit('gameType', gameType)
+    })
+
+    socket.on('rounds', (roomID, round) => {
+        setRounds(roomID, parseInt(round))
+        io.to(roomID).emit('rounds', round)
+    })
+
+    socket.on('duration', (roomID, duration) => {
+        setDuration(roomID, duration)
+        io.to(roomID).emit('duration', duration)
+    })
+
+    socket.on('sending signal', (callerID, signal) => {
+        io.to(callerID).emit('receiving signal', socket.id, signal)
     })
 
     socket.on('returning signal', (callerID, signal) => {
         io.to(callerID).emit('returned signal', socket.id, signal);
+    })
+
+    socket.on('video signal', (callerID, signal) => {
+        io.to(callerID).emit('video signal', socket.id, signal);
+    })
+
+    socket.on('accept video signal', (callerID, signal) => {
+        io.to(callerID).emit('video signal accepted', socket.id, signal)
     })
 
     socket.on('swapTeam', (roomId, team) => {
@@ -66,33 +111,34 @@ io.on('connection', socket => {
         }
     })
 
-    socket.on('callUser', ({ id, data }) => {
-        io.to(id).emit('answerCall', { id: socket.id, data })
-    })
-
-    socket.on('answerCall', ({ id, data }) => {
-        io.to(id).emit('callAccepted', data)
-    })
-
-    socket.on('sendMessage', (forEveryone, roomId, name, color, team, message) => {
-        const today = new Date()
-        const time = ((today.getHours() % 13) + (today.getHours() >= 12 ? 1 : 0)) + ":" + (today.getMinutes() < 10 ? '0' : '') + today.getMinutes() + (today.getHours() >= 12 ? ' PM' : ' AM')
-        if (forEveryone) {
-            io.to(roomId).emit('recieveMessage', name, time, color, message, socket.id, true)
-        }
-        else {
-            const roomData = getRoom(roomId)
-            if (team) {
-                roomData.teamA.forEach(({ id }) => {
-                    io.to(id).emit('recieveMessage', name, time, color, message, socket.id, false)
-                })
+    socket.on('sendMessage', (recieversID, messageInfo) => {
+        const time = currentTime()
+        if (messageInfo.group) {
+            messageInfo.time = time
+            messageInfo.sendersID = socket.id
+            if (recieversID === 'Everyone') {
+                socket.broadcast.to(messageInfo.roomID).emit('recieveMessage', 'Everyone', messageInfo)
             }
             else {
-                roomData.teamB.forEach(({ id }) => {
-                    io.to(id).emit('recieveMessage', name, time, color, message, socket.id, false)
-                })
+                const roomData = getRoom(messageInfo.roomID)
+                if (messageInfo.team) {
+                    roomData.teamA.forEach(({ id }) => {
+                        if (socket.id !== id)
+                            io.to(id).emit('recieveMessage', 'Team', messageInfo)
+                    })
+                }
+                else {
+                    roomData.teamB.forEach(({ id }) => {
+                        if (socket.id !== id)
+                            io.to(id).emit('recieveMessage', 'Team', messageInfo)
+                    })
+                }
             }
-
+            socket.emit('recieveMessage', recieversID, { ...messageInfo, isMe: true })
+        }
+        else {
+            io.to(recieversID).emit('recieveMessage', socket.id, { ...messageInfo, time })
+            socket.emit('recieveMessage', recieversID, { ...messageInfo, time, isMe: true })
         }
     })
 
@@ -128,16 +174,22 @@ io.on('connection', socket => {
         socket.broadcast.to(roomId).emit('clearCanvas')
     })
 
-    socket.on('guessedWord', (roomId, user, word) => {
-        const roomData = getRoom(roomId)
+    socket.on('guessedWord', (roomID, user, word) => {
+        const roomData = getRoom(roomID)
         const actualWord = roomData.status.movie
         if (actualWord === word) {
-            const roomData = setChooser(roomId)
-            io.to(roomId).emit('recieveMessage', 'Admin', '', 'green', word, null, true)
-            io.to(roomId).emit('getChooser', roomData.status.actingTeam, roomData.status.chooser)
+            const { chooser, round, gameEnd } = setChooser(roomID)
+            io.to(roomID).emit('recieveMessage', 'Admin', '', 'green', word, null, true)
+            if (gameEnd) {
+                console.log('win');
+                io.to(roomID).emit('gameEnd', chooser)
+            }
+            else {
+                io.to(roomID).emit('getChooser', chooser, round)
+            }
         }
         else {
-            io.to(roomId).emit('recieveMessage', 'Admin', '', 'red', word, null, true)
+            io.to(roomID).emit('recieveMessage', 'Admin', '', 'red', word, null, true)
         }
     })
 
@@ -145,28 +197,53 @@ io.on('connection', socket => {
         const movieName = movie.toUpperCase()
         const roomData = setMovieName(roomId, movieName)
         const blankWord = hideWord(movieName)
-        if (!roomData.status.actingTeam) {
+        if (!roomData.status.performingTeam) {
             roomData.teamA.forEach(user => {
-                io.to(user.id).emit('getMovie', true, movieName, roomData.status.actor)
+                io.to(user.id).emit('getWord', true, movieName, roomData.status.performer)
             });
             roomData.teamB.forEach(user => {
-                if (!(roomData.status.actor.id === user.id)) {
-                    io.to(user.id).emit('getMovie', false, blankWord, roomData.status.actor)
+                if (!(roomData.status.performer.id === user.id)) {
+                    io.to(user.id).emit('getWord', false, blankWord, roomData.status.performer)
                 }
             })
         }
         else {
             roomData.teamB.forEach(user => {
-                io.to(user.id).emit('getMovie', true, movieName, roomData.status.actor)
+                io.to(user.id).emit('getWord', true, movieName, roomData.status.performer)
             });
             roomData.teamA.forEach(user => {
-                if (!(roomData.status.actor.id === user.id)) {
-                    io.to(user.id).emit('getMovie', false, blankWord, roomData.status.actor)
+                if (!(roomData.status.performer.id === user.id)) {
+                    io.to(user.id).emit('getWord', false, blankWord, roomData.status.performer)
                 }
             })
         }
-        io.to(roomData.status.actor.id).emit('getMovie', true, movieName, roomData.status.actor)
+        io.to(roomData.status.performer.id).emit('getWord', true, movieName, roomData.status.performer)
     })
+
+    socket.on('time out', roomID => {
+        const { chooser, round, gameEnd } = setChooser(roomID)
+        if (gameEnd) {
+            io.to(roomID).emit('gameEnd', chooser, round)
+        }
+        else {
+            io.to(roomID).emit('getChooser', chooser, round)
+        }
+    })
+
+    socket.on('disconnect', () => {
+        const userID = socket.id
+        const userInfo = removeUser(userID)
+        if (userInfo) {
+            const { roomID, team, onWork } = userInfo
+            io.to(roomID).emit('userLeftRoom', userID, team)
+            if (onWork) {
+                const { chooser, round } = setChooser(roomID)
+                console.log(chooser);
+                io.to(roomID).emit('getChooser', chooser, round)
+            }
+        }
+    })
+
 })
 
 server.listen(port, () => {

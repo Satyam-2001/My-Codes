@@ -1,11 +1,14 @@
 import React, { Fragment, useContext, useEffect, useRef, useState } from 'react'
-import UserContext from '../../../../context/user-context'
+import SocketContext from '../../../../context/socket-context'
+import DataContext from '../../../../context/data-context'
 import classes from './CreateDrawing.module.css'
 import OptionBoard from './OptionBoard.jsx/OptionBoard'
 import floodFill from './FloodFill/floodFill'
 
 const CreateDrawing = (props) => {
-    const { socket, roomData } = useContext(UserContext);
+
+    const socket = useContext(SocketContext)
+    const roomData = useContext(DataContext)
     const roomId = roomData.id;
     const [isDrawing, setIsDrawing] = useState(false);
     const [option, setOption] = useState('pencil');

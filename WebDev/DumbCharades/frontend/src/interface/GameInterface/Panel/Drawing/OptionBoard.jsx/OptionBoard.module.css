@@ -8,13 +8,14 @@
     justify-content: space-between;
     justify-items: center;
     bottom: 0px;
-    height: 60px;
+    aspect-ratio: 13/1;
     width: 100%;
     background-color: rgb(51, 52, 53);
 }
 
 .options {
     display: flex;
+    flex-shrink: 2;
     flex-direction: row;
     flex-wrap: nowrap;
     height: 100%;
@@ -56,4 +57,5 @@
     margin: 3px;
     background-color: #bbb;
     border-radius: 50%;
+    aspect-ratio: 1/1;
 }

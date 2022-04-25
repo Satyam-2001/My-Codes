@@ -2,22 +2,23 @@ import Peer from 'simple-peer'
 
 class Connection {
 
-    constructor(socket) {
+    constructor(socket, stream) {
         this.peers = []
         this.socket = socket
-        this.stream = null
+        this.stream = stream
     }
 
     setStream(stream) {
         this.stream = stream
     }
 
-    addPeer(incomingSignal, callerID) {
+    addPeer(callerID, incomingSignal) {
 
+        console.log(this.stream);
         const peer = new Peer({
             initiator: false,
             trickle: false,
-            // stream: this.stream
+            stream: this.stream
         })
 
         peer.on('signal', signal => {
@@ -31,16 +32,16 @@ class Connection {
         return peer
     }
 
-    createPeer(user, team, callerID) {
-        
+    createPeer(callerID) {
+
         const peer = new Peer({
             initiator: true,
             trickle: false,
-            // stream: this.stream
+            stream: this.stream
         });
 
         peer.on('signal', signal => {
-            this.socket.emit('sending signal', user, team, callerID, signal)
+            this.socket.emit('sending signal', callerID, signal)
         })
 
         this.peers.push({ id: callerID, peer })
@@ -54,8 +55,7 @@ class Connection {
     }
 
     addStream(stream) {
-        // this.stream = stream
-        this.peers.forEach(({peer}) => {
+        this.peers.forEach(({ peer }) => {
             peer.addStream(stream)
         })
     }
