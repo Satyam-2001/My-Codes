@@ -19,6 +19,7 @@ const CreateDrawing = (props) => {
 
     useEffect(() => {
         const canvas = canvasRef.current
+
         canvas.width = canvas.parentElement.offsetWidth;
         canvas.height = canvas.parentElement.offsetHeight;
 
@@ -31,6 +32,19 @@ const CreateDrawing = (props) => {
         context.strokeStyle = color;
         context.lineWidth = lineWidth;
         contextRef.current = context;
+    }, [])
+
+    useEffect(() => {
+        window.addEventListener('resize', () => {
+            const canvas = canvasRef.current
+
+            canvas.width = canvas.parentElement.offsetWidth;
+            canvas.height = canvas.parentElement.offsetHeight;
+
+            // canvas.style.width = `${canvas.width}`;
+            // canvas.style.height = `${canvas.height}`;
+            socket.emit('canvasSize', roomId, canvas.width, canvas.height)
+        })
     }, [])
 
     useEffect(() => {
@@ -74,15 +88,14 @@ const CreateDrawing = (props) => {
             setIsDrawing(true);
             socket.emit('startDrawing', roomId, offsetX, offsetY)
         }
+
     };
 
     const startTouchDrawing = ({ touches }) => {
-        console.log('touch');
 
         const { clientX, clientY } = touches[0];
         contextRef.current.beginPath();
         contextRef.current.moveTo(clientX - window.innerWidth * 0.22, clientY - window.innerHeight * 0.1);
-
         setIsDrawing(true);
         socket.emit('startDrawing', roomId, clientX - window.innerWidth * 0.22, clientY - window.innerHeight * 0.1)
     };

@@ -1,14 +1,29 @@
 class Connector {
-    constructor(callback = null) {
-        this.callback = callback
+    constructor() {
+        this.storage = {}
     }
-    Consumer(callback) {
-        this.callback = callback
-    }
-    Provider(...data) {
-        if (this.callback) {
-            this.callback(...data)
+    litsen(id,cmd,callback) {
+        if (cmd in this.storage) {
+            this.storage[cmd][id] = callback
         }
+        else {
+            this.storage[cmd] = { id : callback}
+        }
+        console.log(id,cmd,callback);
+    }
+    broadcast(cmd,...values) {
+        console.log(this.storage[cmd]);
+        for(const id in this.storage[cmd]) {
+            console.log(id);
+            this.storage[cmd][id](...values)
+        }
+        console.log(cmd,...values);
+    }
+    remove(id,cmd) {
+        if (this.storage?.[cmd]?.[id]) {
+            delete this.storage[cmd][id]
+        }
+        console.log(id,cmd);
     }
 }
 

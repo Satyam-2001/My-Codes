@@ -13,7 +13,7 @@ const UserBoard = (props) => {
         <div className={`${props.className} ${classes.board}`} >
             <div className={classes.title}>
                 <StyledText text={`Team ${props.team}`}/>
-                <p className={classes.score}>{1234 || props.score}</p>
+                <p className={classes.score}>{props.score}</p>
             </div>
             <div>
                 {board}

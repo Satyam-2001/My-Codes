@@ -1,4 +1,4 @@
-import React, { useContext, useReducer, useState } from 'react'
+import React, { useContext, useEffect, useReducer, useState } from 'react'
 import classes from './Header.module.css'
 import title from '../../../assets/title.gif'
 import Timer from '../../../components/Utility/Timer'
@@ -11,21 +11,27 @@ const initialWordStatus = {
     alias: false,
 }
 
-const wordReducer = (wordStatus, action) => {
-    return action
-}
-
 const Header = (props) => {
 
+    const objID = 'Header'
     const roomData = useContext(DataContext)
-    const [wordStatus, dispatcWordStatus] = useReducer(wordReducer, initialWordStatus)
+    const [wordStatus, setWordStatus] = useState(initialWordStatus)
     const [timerStatus, setTimerStatus] = useState(null)
 
-    props.Connector.Consumer((wordStatus) => {
-        dispatcWordStatus(wordStatus)
-        if (wordStatus.isPerforming) { setTimerStatus(roomData.duration) }
-        else { setTimerStatus(null) }
-    })
+    useEffect(() => {
+        props.Connector.litsen(objID,'perform', (wordStatus) => {
+            console.log(wordStatus);
+            setWordStatus(wordStatus)
+            if (wordStatus.isPerforming) { setTimerStatus(roomData.duration) }
+            else { setTimerStatus(null) }
+        })
+        return () => {props.Connector.remove(objID,'perform')}
+    }, [])
+    // props.Connector.Consumer((wordStatus) => {
+    //     setWordStatus(wordStatus)
+    //     if (wordStatus.isPerforming) { setTimerStatus(roomData.duration) }
+    //     else { setTimerStatus(null) }
+    // })
 
     return (
         <header>

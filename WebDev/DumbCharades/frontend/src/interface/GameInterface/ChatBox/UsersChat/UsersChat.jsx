@@ -7,6 +7,7 @@ const UsersChat = (props) => {
 
     const goBackHandler = () => {
         props.setUserChatOpen(null)
+        props.addChat(null)
     }
 
     return (
@@ -19,7 +20,7 @@ const UsersChat = (props) => {
                 </div>
                 <button className={`round-button material-icons`} onClick={props.chatBoxClose}>close</button>
             </div>
-            <Chats id={props.info.id} />
+            <Chats id={props.info.id} addChat={props.addChat} />
             <SendMessage recieversInfo={props.info} />
         </div>
     )

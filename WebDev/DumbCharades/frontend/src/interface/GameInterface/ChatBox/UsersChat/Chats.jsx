@@ -1,25 +1,26 @@
 import React, { useContext, useEffect, useRef, useState } from 'react'
 import classes from './Chats.module.css'
 import MessageCard from '../Utils/MessageCard'
-import { getChats } from '../DataBase/database'
-import SocketContext from '../../../../context/socket-context'
+import { getChats, setUnRead } from '../DataBase/database'
 
 const Chats = (props) => {
 
-    const socket = useContext(SocketContext)
     const [chats, setChats] = useState(getChats(props.id))
     const scrollRef = useRef()
 
     useEffect(() => {
-        socket.on('recieveMessage', (messageID, messageInfo) => {
+        const addMessage = (messageID, messageInfo) => {
             if (messageID === props.id) {
                 setChats(prev => [...prev, messageInfo])
+                return false
             }
-        })
-        return () => { socket.off('recieveMessage') }
+            return true
+        }
+        props.addChat(() => addMessage)
     }, [])
 
     useEffect(() => {
+        setUnRead(props.id)
         scrollRef.current.scrollTop = scrollRef.current.scrollHeight
     }, [])
 

@@ -3,7 +3,10 @@
 }
 
 .list {
-    display: flex;
-    flex-direction: column;
+    display: block;
     overflow-y: auto;
+    white-space: nowrap;
+    /* width: 100%; */
+    /* overflow-x: hidden; */
+    flex-grow: 0;
 }

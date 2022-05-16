@@ -1,4 +1,4 @@
-import React, { Fragment, useCallback, useContext, useEffect, useRef, useState, useReducer } from 'react'
+import React, { useContext, useEffect, useRef, useState, useReducer } from 'react'
 import UserContext from '../../context/user-context'
 import ChatBox from './ChatBox/ChatBox'
 import ControlPanel from './ControlPanel/ControlPanel'
@@ -6,7 +6,7 @@ import classes from './GameInterface.module.css'
 import Panel from './Panel/Panel'
 import Header from './Header/Header'
 import UserBoard from './UserBoard/UserBoard'
-import { addChats, getChats, isLastElementSame } from './ChatBox/DataBase/database'
+import { addChats } from './ChatBox/DataBase/database'
 import Connector from '../../connector/Connector'
 import JoiningInfoCard from './JoiningInfoCard/JoiningInfoCard'
 import Connection from '../../peer/connection'
@@ -28,6 +28,7 @@ const GameInterface = (props) => {
     const [joiningInfoOpen, setJoiningInfoOpen] = useState(false)
     const [peersArray, setPeersArray] = useState([])
     const [currentRound, setCurrentRound] = useState(gameData.status.currentRound)
+    const [addChatCallBack, setAddChatCallBack] = useState(null)
     const { allUsers } = gameData
 
     const myStream = useRef()
@@ -95,20 +96,24 @@ const GameInterface = (props) => {
 
     useEffect(() => {
         socket.on('recieveMessage', (messageID, messageInfo) => {
-            addChats(messageID, messageInfo)
+            let unRead = true
+            if (addChatCallBack) {
+                unRead = addChatCallBack(messageID, messageInfo)
+            }
+            addChats(messageID, messageInfo, unRead)
         })
         return () => { socket.off('recieveMessage') }
-    }, [])
-
+    }, [addChatCallBack])
+    
     return (
         <DataContext.Provider value={gameData}>
             < div className={classes.page} >
                 <Header Connector={connector} />
                 <div className={classes.content}>
-                    <UserBoard team='A' score={gameData.scoreA} teamData={gameData.teamA} className={chatBoxOpen || joiningInfoOpen ? classes.messageTaemA : undefined} />
+                    <UserBoard team='A' score={gameData.status.scoreA} teamData={gameData.teamA} className={chatBoxOpen || joiningInfoOpen ? classes.messageTaemA : undefined} />
                     <Panel Connector={connector} setCurrentRound={setCurrentRound} />
-                    <UserBoard team='B' score={gameData.scoreB} teamData={gameData.teamB} className={chatBoxOpen || joiningInfoOpen ? classes.messageTaemB : undefined} />
-                    {chatBoxOpen && <ChatBox chatBoxClose={chatBoxPressed} />}
+                    <UserBoard team='B' score={gameData.status.scoreB} teamData={gameData.teamB} className={chatBoxOpen || joiningInfoOpen ? classes.messageTaemB : undefined} />
+                    {chatBoxOpen && <ChatBox chatBoxClose={chatBoxPressed} addChat={setAddChatCallBack} />}
                     {joiningInfoOpen && <JoiningInfoCard joinInfoClose={joiningInfoPressed} />}
                 </div>
                 <ControlPanel currentRound={currentRound} chatBoxPressed={chatBoxPressed} joiningInfoPressed={joiningInfoPressed} myStream={myStream} />

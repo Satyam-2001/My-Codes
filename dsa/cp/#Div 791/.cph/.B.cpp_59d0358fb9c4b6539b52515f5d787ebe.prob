@@ -1,0 +1,1 @@
+{"name":"Local: B","url":"c:\\Users\\lohiy\\My-Codes\\dsa\\cp\\#Div 791\\B.cpp","tests":[{"id":1652525081211,"input":"5 5\n1 2 3 4 5\n1 1 5\n2 10\n1 5 11\n1 4 1\n2 1","output":"19\n50\n51\n42\n5"}],"interactive":false,"memoryLimit":1024,"timeLimit":3000,"srcPath":"c:\\Users\\lohiy\\My-Codes\\dsa\\cp\\#Div 791\\B.cpp","group":"local","local":true}

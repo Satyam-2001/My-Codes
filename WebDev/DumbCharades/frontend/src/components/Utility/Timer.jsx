@@ -4,6 +4,12 @@ import SocketContext from '../../context/socket-context'
 import useTimer from '../../hooks/use-timer'
 import classes from './Timer.module.css'
 
+const twoDigit = (num) => {
+    const s = String(num)
+    if (s.length == 2) return s
+    return '0' + s
+}
+
 const Timer = (props) => {
 
     const socket = useContext(SocketContext)
@@ -23,8 +29,10 @@ const Timer = (props) => {
 
     return (
         <div className={classes.timer}>
-            <img src={require('../../assets/timer.png')} className={classes.image} />
-            <p className={classes.time}>{time}</p>
+            <p className={classes.time}>{twoDigit(Math.floor(time/60))}</p>
+            <p className={classes.colon}>:</p>
+            <p className={classes.time}>{twoDigit(time%60)}</p>
+            {/* <img src={require('../../assets/timer.png')} className={classes.image} /> */}
         </div>
     )
 }

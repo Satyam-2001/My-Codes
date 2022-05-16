@@ -11,8 +11,8 @@ const ChatBox = (props) => {
         <Fragment>
             {
                 userChatOpen !== null ?
-                    <UsersChat info={userChatOpen} setUserChatOpen={setUserChatOpen} chatBoxClose={props.chatBoxClose} />
-                    : <ChatList setUserChatOpen={setUserChatOpen} chatBoxClose={props.chatBoxClose} />
+                    <UsersChat info={userChatOpen} setUserChatOpen={setUserChatOpen} chatBoxClose={props.chatBoxClose} addChat={props.addChat} />
+                    : <ChatList setUserChatOpen={setUserChatOpen} chatBoxClose={props.chatBoxClose} addChat={props.addChat} />
             }
         </Fragment>
     )

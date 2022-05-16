@@ -14,7 +14,6 @@ class Connection {
 
     addPeer(callerID, incomingSignal) {
 
-        console.log(this.stream);
         const peer = new Peer({
             initiator: false,
             trickle: false,

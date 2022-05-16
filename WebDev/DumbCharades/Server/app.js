@@ -1,7 +1,7 @@
 const express = require("express");
 const http = require("http");
 const socketio = require("socket.io");
-const { createNewRoom, addUser, swapTeam, getRoom, createStatus, setMovieName, setChooser, setGameType, setRounds, setDuration, removeUser } = require('./utils/users')
+const { createNewRoom, addUser, swapTeam, getRoom, createStatus, setMovieName, setChooser, setGameType, setRounds, setDuration, removeUser, getStatus } = require('./utils/users')
 const { nanoid } = require('nanoid')
 
 const port = process.env.PORT || 4001;
@@ -27,7 +27,7 @@ const hideWord = (word) => {
 const currentTime = () => {
     const today = new Date()
     const time = ((today.getHours() % 13) + (today.getHours() >= 12 ? 1 : 0)) + ":" + (today.getMinutes() < 10 ? '0' : '') + today.getMinutes() + (today.getHours() >= 12 ? ' pm' : ' am')
-    return time
+    return [time, today]
 }
 
 io.on('connection', socket => {
@@ -57,6 +57,8 @@ io.on('connection', socket => {
     })
 
     socket.on('userJoinedGame', (roomID, user, team) => {
+        const status = getStatus(roomID)
+        socket.emit('startGame', status)
         socket.broadcast.to(roomID).emit('userJoinedGame', user, team)
     })
 
@@ -101,20 +103,23 @@ io.on('connection', socket => {
     })
 
     socket.on('startGame', (roomId) => {
-        const roomData = getRoom(roomId)
-        if (roomData.isRunning) {
-            io.to(roomId).emit('startGame', roomData.status)
-        }
-        else {
-            const updatedRoomData = createStatus(roomId)
-            io.to(roomId).emit('startGame', updatedRoomData.status)
-        }
+        // const roomData = getRoom(roomId)
+        // if (roomData.isRunning) {
+        //     io.to(roomId).emit('startGame', roomData.status)
+        // }
+        // else {
+        //     const updatedRoomData = createStatus(roomId)
+        //     io.to(roomId).emit('startGame', updatedRoomData.status)
+        // }
+        const status = createStatus(roomId)
+        io.to(roomId).emit('startGame', status)
     })
 
     socket.on('sendMessage', (recieversID, messageInfo) => {
-        const time = currentTime()
+        const [time, timestamp] = currentTime()
+        messageInfo.time = time
+        messageInfo.timestamp = timestamp
         if (messageInfo.group) {
-            messageInfo.time = time
             messageInfo.sendersID = socket.id
             if (recieversID === 'Everyone') {
                 socket.broadcast.to(messageInfo.roomID).emit('recieveMessage', 'Everyone', messageInfo)
@@ -137,8 +142,8 @@ io.on('connection', socket => {
             socket.emit('recieveMessage', recieversID, { ...messageInfo, isMe: true })
         }
         else {
-            io.to(recieversID).emit('recieveMessage', socket.id, { ...messageInfo, time })
-            socket.emit('recieveMessage', recieversID, { ...messageInfo, time, isMe: true })
+            io.to(recieversID).emit('recieveMessage', socket.id, { ...messageInfo })
+            socket.emit('recieveMessage', recieversID, { ...messageInfo, isMe: true })
         }
     })
 
@@ -181,7 +186,6 @@ io.on('connection', socket => {
             const { chooser, round, gameEnd } = setChooser(roomID)
             io.to(roomID).emit('recieveMessage', 'Admin', '', 'green', word, null, true)
             if (gameEnd) {
-                console.log('win');
                 io.to(roomID).emit('gameEnd', chooser)
             }
             else {
@@ -238,7 +242,6 @@ io.on('connection', socket => {
             io.to(roomID).emit('userLeftRoom', userID, team)
             if (onWork) {
                 const { chooser, round } = setChooser(roomID)
-                console.log(chooser);
                 io.to(roomID).emit('getChooser', chooser, round)
             }
         }
