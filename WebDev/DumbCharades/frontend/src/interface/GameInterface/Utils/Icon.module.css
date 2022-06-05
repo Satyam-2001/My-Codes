@@ -1,15 +1,15 @@
-.mic_on {
+.on {
     background-color: rgb(27, 27, 27);
 }
 
-.mic_on_hover:hover {
+.on_hover:hover {
     background-color: rgb(57, 57, 57);
 }
 
-.mic_off {
+.off {
     background-color: red;
 }
 
-.mic_off_hover:hover {
+.off_hover:hover {
     background-color: rgb(250, 86, 86);
 }

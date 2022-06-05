@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react'
 import DataContext from '../../../context/data-context'
 import SocketContext from '../../../context/socket-context'
 import UserContext from '../../../context/user-context'
-import MicIcon from '../Utils/MicIcon'
+import MicIcon from '../Utils/Icon'
 
 const Mic = (props) => {
 

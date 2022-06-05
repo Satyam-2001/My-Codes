@@ -18,7 +18,7 @@ const CustomDropdown = (props) => {
         <Template className={classes['custom-dropdown']} label={props.label} disabled={props.disabled}>
             <select onChange={inputHandler} value={roomData[props.label]} className={props.disabled ? classes.disabled : undefined}>
                 {props.options.map((value) => {
-                    return <option key={value} value={value} selected={value === roomData[props.label]}>{value}</option>
+                    return <option key={value} value={value} defaultValue={value === roomData[props.label]}>{value}</option>
                 })} 
             </select>
         </Template>

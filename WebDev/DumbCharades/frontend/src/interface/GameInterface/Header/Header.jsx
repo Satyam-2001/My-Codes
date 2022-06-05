@@ -20,18 +20,12 @@ const Header = (props) => {
 
     useEffect(() => {
         props.Connector.litsen(objID,'perform', (wordStatus) => {
-            console.log(wordStatus);
             setWordStatus(wordStatus)
             if (wordStatus.isPerforming) { setTimerStatus(roomData.duration) }
             else { setTimerStatus(null) }
         })
         return () => {props.Connector.remove(objID,'perform')}
     }, [])
-    // props.Connector.Consumer((wordStatus) => {
-    //     setWordStatus(wordStatus)
-    //     if (wordStatus.isPerforming) { setTimerStatus(roomData.duration) }
-    //     else { setTimerStatus(null) }
-    // })
 
     return (
         <header>

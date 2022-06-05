@@ -10,43 +10,29 @@ const ENDPOINT = 'http://localhost:4001';
 const socket = socketIOClient(ENDPOINT);
 
 const dataReducer = (roomData, action) => {
+
     switch (action.type) {
         case 'RESET': {
             return action.roomData
         }
         case 'ADD_USER': {
-            if (action.team) {
-                const teamA = [...roomData.teamA, action.user]
-                return { ...roomData, teamA }
-            }
-            const teamB = [...roomData.teamB, action.user]
-            return { ...roomData, teamB }
+            const team = { ...roomData.team }
+            team[action.team] = [...roomData.team[action.team], action.user]
+            return { ...roomData, team }
         }
         case 'REMOVE_USER': {
-            if (action.team) {
-                const teamA = roomData.teamA.filter(user => user.id !== action.userID)
-                return { ...roomData, teamA }
-            }
-            const teamB = roomData.teamB.filter(user => user.id !== action.userID)
-            return { ...roomData, teamB }
+            const team = { ...roomData.team }
+            team[action.team] = roomData.team[action.team].filter(user => user.id !== action.userID)
+            return { ...roomData , team}
         }
         case 'SWAP_TEAM': {
-            let teamA, teamB
-            if (action.team) {
-                const index = roomData.teamA.findIndex(user => user.id === action.id)
-                if (index !== -1) {
-                    teamB = [...roomData.teamB, roomData.teamA[index]]
-                    teamA = roomData.teamA.filter(user => user.id !== action.id)
-                }
+            const index = roomData.team[action.team].findIndex(user => user.id === action.id)
+            const newTeam = action.team === 'A' ? 'B' : 'A'
+            if (index !== -1) {
+                roomData.team[newTeam] = [...roomData.team[newTeam], roomData.team[action.team][index]]
+                roomData.team[action.team] = roomData.team[action.team].filter(user => user.id !== action.id)
             }
-            else {
-                const index = roomData.teamB.findIndex(user => user.id === action.id)
-                if (index !== -1) {
-                    teamA = [...roomData.teamA, roomData.teamB[index]]
-                    teamB = roomData.teamB.filter(user => user.id !== action.id)
-                }
-            }
-            return { ...roomData, teamA, teamB }
+            return { ...roomData }
         }
         case 'GMAE_TYPE': {
             return { ...roomData, game: action.gameType }

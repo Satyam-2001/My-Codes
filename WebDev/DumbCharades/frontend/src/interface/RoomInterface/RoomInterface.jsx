@@ -11,11 +11,10 @@ const initialData = {
     id: '',
     admin: '',
     isRunning: false,
-    game: false,
+    game: 'DRAWING',
     rounds: 1,
     duration: 120,
-    teamA: [],
-    teamB: []
+    team: { 'A': [], 'B': [] }
 }
 
 const RoomInterface = (props) => {
@@ -23,7 +22,7 @@ const RoomInterface = (props) => {
     const user = useContext(UserContext)
     const socket = useContext(SocketContext)
     const [roomData, dispatchRoomData] = useReducer(props.dataReducer, initialData)
-    const [team, setTeam] = useState(true)
+    const [team, setTeam] = useState('A')
     const [allUsers, setAllUsers] = useState([])
 
     useEffect(() => {
@@ -31,7 +30,6 @@ const RoomInterface = (props) => {
             socket.emit('createRoom', user, (data) => {
                 props.setUser({ ...data.user, team })
                 setAllUsers([data.user.id])
-                console.log(data.roomData);
                 dispatchRoomData({ type: 'RESET', roomData: data.roomData })
             })
         }
@@ -80,6 +78,7 @@ const RoomInterface = (props) => {
             socket.removeAllListeners('userJoinedRoom')
             socket.removeAllListeners('userLeftRoom')
             props.setGameData({ ...roomData, status, allUsers })
+            props.setUser(user => { return { ...user, team } })
         })
         return () => { socket.off('startGame') }
     }, [user, roomData, allUsers])
@@ -114,7 +113,7 @@ const RoomInterface = (props) => {
 
     const swapTeamHandler = () => {
         socket.emit('swapTeam', roomData.id, team)
-        setTeam(team => !team)
+        setTeam(team => team === 'A' ? 'B' : 'A')
     }
 
     const gameStartHandler = () => {
@@ -130,9 +129,9 @@ const RoomInterface = (props) => {
         <RoomContext.Provider value={roomData} >
             <PageDesign>
                 <div className={classes.main}>
-                    {roomData && <Team name='A' team={team} data={roomData.teamA} className={classes.content} swapTeam={swapTeamHandler} />}
+                    {roomData && <Team name='A' isMyTeam={team === 'A'} className={classes.content} swapTeam={swapTeamHandler} />}
                     <UserSettings gameStartHandler={gameStartHandler} />
-                    {roomData && <Team name='B' team={!team} data={roomData.teamB} className={classes.content} swapTeam={swapTeamHandler} />}
+                    {roomData && <Team name='B' isMyTeam={team === 'B'} className={classes.content} swapTeam={swapTeamHandler} />}
                 </div>
             </PageDesign>
         </RoomContext.Provider>

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect } from 'react'
 import DataContext from '../../context/data-context'
 import SocketContext from '../../context/socket-context'
 import useTimer from '../../hooks/use-timer'
@@ -6,7 +6,7 @@ import classes from './Timer.module.css'
 
 const twoDigit = (num) => {
     const s = String(num)
-    if (s.length == 2) return s
+    if (s.length === 2) return s
     return '0' + s
 }
 
@@ -18,7 +18,7 @@ const Timer = (props) => {
     const [time, setTime] = useTimer(props.time, () => {
         console.log(props.initiator);
         if (props.initiator) {
-            socket.emit('time out', roomID)
+            socket.emit('timeOut', roomID)
         }
         props.setTimerStatus(null)
     })

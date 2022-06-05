@@ -12,15 +12,18 @@ const TeamScore = (props) => {
 }
 
 const GameEnd = (props) => {
+
+    const prefix = props.winner ? '' : '+ '
+
     return (
         <Fragment>
-            <p className={classes.title}>WINNER TEAM A</p>
+            {props.winner && <p className={classes.title}>{props.winner}</p>}
             <div className={classes['score-board']}>
                 <fieldset>
                     <legend>SCORE BOARD</legend>
-                    <TeamScore team='A' score='1000' />
-                    <TeamScore team='B' score='1800' />
-                    <Button className={classes['play-again']}>Play Again</Button>
+                    <TeamScore team='A' score={prefix + String(props.score['A'])} />
+                    <TeamScore team='B' score={prefix + String(props.score['B'])} />
+                    {props.winner && <Button className={classes['play-again']}>Play Again</Button>}
                 </fieldset>
             </div>
         </Fragment>

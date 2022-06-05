@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react'
 import UserContext from '../../../context/user-context'
 import classes from './InfoCard.module.css'
-import MicIcon from '../Utils/MicIcon'
+import Icon from '../Utils/Icon'
 import SocketContext from '../../../context/socket-context'
 
 const InfoCard = (props) => {
@@ -22,7 +22,7 @@ const InfoCard = (props) => {
         <div className={classes.card} style={{ borderColor: props.user.color }}>
             <img src={require(`../../../assets/avatar/${props.user.avatar}.png`)} />
             <p className={classes.name}>{isMe ? 'You' : props.user.name}</p>
-            <MicIcon micStatus={micStatus} size='40px' className={classes.mic} hover={false} />
+            <Icon util='mic' status={micStatus} size='40px' className={classes.mic} hover={false} />
         </div>
     )
 }

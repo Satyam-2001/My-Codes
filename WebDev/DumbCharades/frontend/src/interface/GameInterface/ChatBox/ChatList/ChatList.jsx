@@ -7,8 +7,8 @@ import SearchBar from '../Utils/SearchBar'
 import SideHeader from '../../Utils/SideHeader'
 import { getUnRead, lastMessage } from '../DataBase/database'
 
-const everyone = { avatar: 1, name: 'Everyone', id: 'Everyone', group: true }
-const team = { avatar: 1, name: 'Team', id: 'Team', group: true }
+const everyone = { avatar: 25, name: 'Everyone', id: 'Everyone', group: true }
+const teamGroup = { avatar: 26, name: 'Team', id: 'Team', group: true }
 
 const compare = (a, b) => {
     const message1 = lastMessage(a.id)
@@ -34,10 +34,10 @@ const ChatList = (props) => {
     const user = useContext(UserContext)
     const roomData = useContext(DataContext)
     const { id: userID } = user
-    const { teamA, teamB } = roomData
-    const completeUserList = [everyone, team, ...teamA, ...teamB].filter((user) => user.id !== userID)
+    const { team } = roomData
+    const completeUserList = [everyone, teamGroup, ...team['A'], ...team['B']].filter((user) => user.id !== userID)
     const [userList, setUserList] = useState([])
-    
+
     useEffect(() => {
         const manageChat = (messageID) => {
             setUserList((userList) => {

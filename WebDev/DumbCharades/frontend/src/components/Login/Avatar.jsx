@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import classes from './Avatar.module.css'
 
-const numberOfAvatar = 3
+const numberOfAvatar = 25
 
 const Avatar = (props) => {
 

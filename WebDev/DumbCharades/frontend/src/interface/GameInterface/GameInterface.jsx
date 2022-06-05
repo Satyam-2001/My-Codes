@@ -27,7 +27,7 @@ const GameInterface = (props) => {
     const [chatBoxOpen, setChatBoxOpen] = useState(false)
     const [joiningInfoOpen, setJoiningInfoOpen] = useState(false)
     const [peersArray, setPeersArray] = useState([])
-    const [currentRound, setCurrentRound] = useState(gameData.status.currentRound)
+    // const [currentRound, setCurrentRound] = useState(gameData.status.currentRound)
     const [addChatCallBack, setAddChatCallBack] = useState(null)
     const { allUsers } = gameData
 
@@ -104,19 +104,19 @@ const GameInterface = (props) => {
         })
         return () => { socket.off('recieveMessage') }
     }, [addChatCallBack])
-    
+
     return (
         <DataContext.Provider value={gameData}>
             < div className={classes.page} >
                 <Header Connector={connector} />
                 <div className={classes.content}>
-                    <UserBoard team='A' score={gameData.status.scoreA} teamData={gameData.teamA} className={chatBoxOpen || joiningInfoOpen ? classes.messageTaemA : undefined} />
-                    <Panel Connector={connector} setCurrentRound={setCurrentRound} />
-                    <UserBoard team='B' score={gameData.status.scoreB} teamData={gameData.teamB} className={chatBoxOpen || joiningInfoOpen ? classes.messageTaemB : undefined} />
+                    <UserBoard team='A' Connector={connector} className={chatBoxOpen || joiningInfoOpen ? classes.messageTaemA : undefined} />
+                    <Panel Connector={connector} />
+                    <UserBoard team='B' Connector={connector} className={chatBoxOpen || joiningInfoOpen ? classes.messageTaemB : undefined} />
                     {chatBoxOpen && <ChatBox chatBoxClose={chatBoxPressed} addChat={setAddChatCallBack} />}
                     {joiningInfoOpen && <JoiningInfoCard joinInfoClose={joiningInfoPressed} />}
                 </div>
-                <ControlPanel currentRound={currentRound} chatBoxPressed={chatBoxPressed} joiningInfoPressed={joiningInfoPressed} myStream={myStream} />
+                <ControlPanel Connector={connector} chatBoxPressed={chatBoxPressed} joiningInfoPressed={joiningInfoPressed} myStream={myStream} />
             </div >
             <div>
                 {peersArray.map((user) => {

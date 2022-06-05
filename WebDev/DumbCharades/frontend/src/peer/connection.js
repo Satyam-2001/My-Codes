@@ -25,9 +25,7 @@ class Connection {
         })
 
         peer.signal(incomingSignal);
-
         this.peers.push({ id: callerID, peer })
-
         return peer
     }
 
@@ -44,7 +42,6 @@ class Connection {
         })
 
         this.peers.push({ id: callerID, peer })
-
         return peer
     }
 

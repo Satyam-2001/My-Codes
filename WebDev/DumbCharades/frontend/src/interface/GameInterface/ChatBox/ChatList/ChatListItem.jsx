@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React from 'react'
 import classes from './ChatListItem.module.css'
 
 const ChatListItem = (props) => {
@@ -9,7 +9,7 @@ const ChatListItem = (props) => {
 
     return (
         <div className={classes.item} onClick={userChatClickHandler}>
-            <img className='chat-avatar' src={require(`../../../../assets/avatar/${props.info.avatar}.png`)} />
+            <img className='chat-avatar' src={require(`../../../../assets/avatar/${props.info.avatar}.png`)} alt='avatar' />
             <div className={classes['name-box']}>
                 <div className={classes.top}>
                     <p className={classes.name}>{props.info.name}</p>

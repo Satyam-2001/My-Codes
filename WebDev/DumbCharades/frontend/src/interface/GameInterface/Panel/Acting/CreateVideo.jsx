@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useContext } from 'react'
+import React, { useState, useRef, useContext, useLayoutEffect } from 'react'
 import UserContext from '../../../../context/user-context'
 import SocketContext from '../../../../context/socket-context'
 import VideoConnection from '../../../../peer/videoConnection'
@@ -10,13 +10,14 @@ const CreateVideo = (props) => {
     const user = useContext(UserContext)
     const socket = useContext(SocketContext)
     const { allUsers } = useContext(DataContext)
+    // const [currentStream , setStream] = useState()
     const { id: userId } = user
 
     const myStream = useRef()
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         navigator.getUserMedia({ video: true }, (stream) => {
-
+            
             myStream.current.srcObject = stream
             const Peer = new VideoConnection(socket, stream)
             for (let i = 0; i < allUsers.length; i++) {
@@ -34,9 +35,9 @@ const CreateVideo = (props) => {
 
         return () => {
             socket.off('video signal accepted')
-            // myStream.current.srcObject.getTracks().forEach((track) => {
-            //     track.stop()
-            // });
+            myStream.current.srcObject.getTracks().forEach((track) => {
+                track.stop()
+            });
         }
     }, [])
     return (

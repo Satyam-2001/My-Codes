@@ -1,7 +1,7 @@
 const express = require("express");
 const http = require("http");
 const socketio = require("socket.io");
-const { createNewRoom, addUser, swapTeam, getRoom, createStatus, setMovieName, setChooser, setGameType, setRounds, setDuration, removeUser, getStatus } = require('./utils/users')
+const { createNewRoom, addUser, swapTeam, getRoom, createStatus, setWord, setChooser, setGameType, setRounds, setDuration, removeUser, getStatus, checkWord, otherTeam, timeOut } = require('./utils/users')
 const { nanoid } = require('nanoid')
 
 const port = process.env.PORT || 4001;
@@ -98,7 +98,7 @@ io.on('connection', socket => {
     })
 
     socket.on('swapTeam', (roomId, team) => {
-        const roomData = swapTeam(roomId, socket.id, team)
+        swapTeam(roomId, socket.id, team)
         io.to(roomId).emit('swapTeam', socket.id, team)
     })
 
@@ -119,32 +119,14 @@ io.on('connection', socket => {
         const [time, timestamp] = currentTime()
         messageInfo.time = time
         messageInfo.timestamp = timestamp
-        if (messageInfo.group) {
-            messageInfo.sendersID = socket.id
-            if (recieversID === 'Everyone') {
-                socket.broadcast.to(messageInfo.roomID).emit('recieveMessage', 'Everyone', messageInfo)
-            }
-            else {
-                const roomData = getRoom(messageInfo.roomID)
-                if (messageInfo.team) {
-                    roomData.teamA.forEach(({ id }) => {
-                        if (socket.id !== id)
-                            io.to(id).emit('recieveMessage', 'Team', messageInfo)
-                    })
-                }
-                else {
-                    roomData.teamB.forEach(({ id }) => {
-                        if (socket.id !== id)
-                            io.to(id).emit('recieveMessage', 'Team', messageInfo)
-                    })
-                }
-            }
-            socket.emit('recieveMessage', recieversID, { ...messageInfo, isMe: true })
-        }
-        else {
-            io.to(recieversID).emit('recieveMessage', socket.id, { ...messageInfo })
-            socket.emit('recieveMessage', recieversID, { ...messageInfo, isMe: true })
-        }
+        messageInfo.sendersID = socket.id
+        socket.emit('recieveMessage', recieversID, { ...messageInfo, isMe: true })
+        if (!messageInfo.group) return io.to(recieversID).emit('recieveMessage', socket.id, { ...messageInfo })
+        if (recieversID === 'Everyone') return socket.broadcast.to(messageInfo.roomID).emit('recieveMessage', 'Everyone', messageInfo)
+        const roomData = getRoom(messageInfo.roomID)
+        roomData.team[messageInfo.team].forEach(({ id }) => {
+            if (socket.id !== id) io.to(id).emit('recieveMessage', 'Team', messageInfo)
+        })
     })
 
     socket.on('canvasSize', (roomId, width, height) => {
@@ -180,70 +162,57 @@ io.on('connection', socket => {
     })
 
     socket.on('guessedWord', (roomID, user, word) => {
-        const roomData = getRoom(roomID)
-        const actualWord = roomData.status.movie
-        if (actualWord === word) {
+        // const roomData = getRoom(roomID)
+        // const actualWord = roomData.status.movie
+        const isWordCorrect = checkWord(roomID, word)
+        if (isWordCorrect.right) {
+            const { scoreAdd } = isWordCorrect
             const { chooser, round, gameEnd } = setChooser(roomID)
-            io.to(roomID).emit('recieveMessage', 'Admin', '', 'green', word, null, true)
-            if (gameEnd) {
-                io.to(roomID).emit('gameEnd', chooser)
-            }
-            else {
-                io.to(roomID).emit('getChooser', chooser, round)
-            }
+            if (gameEnd) io.to(roomID).emit('gameEnd', gameEnd, scoreAdd)
+            else io.to(roomID).emit('getChooser', chooser, round, scoreAdd)
         }
-        else {
-            io.to(roomID).emit('recieveMessage', 'Admin', '', 'red', word, null, true)
-        }
+        socket.broadcast.to(roomID).emit('recieveGuess', user.name, word, isWordCorrect.right)
+        socket.emit('recieveGuess', 'You', word, isWordCorrect.right)
     })
 
-    socket.on('setMovie', (roomId, movie) => {
-        const movieName = movie.toUpperCase()
-        const roomData = setMovieName(roomId, movieName)
-        const blankWord = hideWord(movieName)
-        if (!roomData.status.performingTeam) {
-            roomData.teamA.forEach(user => {
-                io.to(user.id).emit('getWord', true, movieName, roomData.status.performer)
-            });
-            roomData.teamB.forEach(user => {
-                if (!(roomData.status.performer.id === user.id)) {
-                    io.to(user.id).emit('getWord', false, blankWord, roomData.status.performer)
-                }
-            })
-        }
-        else {
-            roomData.teamB.forEach(user => {
-                io.to(user.id).emit('getWord', true, movieName, roomData.status.performer)
-            });
-            roomData.teamA.forEach(user => {
-                if (!(roomData.status.performer.id === user.id)) {
-                    io.to(user.id).emit('getWord', false, blankWord, roomData.status.performer)
-                }
-            })
-        }
-        io.to(roomData.status.performer.id).emit('getWord', true, movieName, roomData.status.performer)
+    socket.on('setWord', (roomId, word) => {
+        const wordName = word.toUpperCase()
+        const roomData = setWord(roomId, wordName)
+        const blankWord = hideWord(wordName)
+        const team = otherTeam(roomData.status.performingTeam)
+        roomData.team[team].forEach(user => {
+            io.to(user.id).emit('getWord', true, wordName, roomData.status.performer)
+        });
+        roomData.team[roomData.status.performingTeam].forEach(user => {
+            if (!(roomData.status.performer.id === user.id)) {
+                io.to(user.id).emit('getWord', false, blankWord, roomData.status.performer)
+            }
+        })
+        io.to(roomData.status.performer.id).emit('getWord', true, wordName, roomData.status.performer)
     })
 
-    socket.on('time out', roomID => {
+    socket.on('timeOut', roomID => {
+        const scoreAdd = timeOut(roomID)
         const { chooser, round, gameEnd } = setChooser(roomID)
         if (gameEnd) {
-            io.to(roomID).emit('gameEnd', chooser, round)
+            io.to(roomID).emit('gameEnd', gameEnd, scoreAdd)
         }
         else {
-            io.to(roomID).emit('getChooser', chooser, round)
+            io.to(roomID).emit('getChooser', chooser, round, scoreAdd)
         }
     })
 
     socket.on('disconnect', () => {
         const userID = socket.id
         const userInfo = removeUser(userID)
-        if (userInfo) {
-            const { roomID, team, onWork } = userInfo
-            io.to(roomID).emit('userLeftRoom', userID, team)
-            if (onWork) {
-                const { chooser, round } = setChooser(roomID)
-                io.to(roomID).emit('getChooser', chooser, round)
-            }
+        if (!userInfo) return
+        const { roomID, team, onWork, gameEnd } = userInfo
+        io.to(roomID).emit('userLeftRoom', userID, team)
+        if (gameEnd) return io.to(roomID).emit('gameEnd', gameEnd)
+        if (onWork) {
+            const { chooser, round, gameEnd } = setChooser(roomID)
+            if (gameEnd) io.to(roomID).emit('gameEnd', gameEnd, chooser)
+            else io.to(roomID).emit('getChooser', chooser, round, scoreAdd)
         }
     })
 

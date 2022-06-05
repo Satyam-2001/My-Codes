@@ -19,8 +19,21 @@ const colorsArray = [
     'rgb(51,51,204)',
 ]
 
+const otherTeam = (s) => {
+    return s === 'A' ? 'B' : 'A'
+}
+
+const gameEnd = (roomIndex) => {
+    const score = users[roomIndex].status.score
+    let winner = 'GAME TIE'
+    if (score['A'] > score['B']) return { score, winner: 'WINNER TEAM A' }
+    if (score['A'] < score['B']) return { score, winner: 'WINNER TEAM B' }
+    return { score, winner: 'GAME TIE' }
+    
+}
+
 const filterStatus = (status) => {
-    const updatedStatus = {...status}
+    const updatedStatus = { ...status }
     delete updatedStatus.performerCountA
     delete updatedStatus.performerCountB
     delete updatedStatus.chooserCountA
@@ -31,18 +44,20 @@ const filterStatus = (status) => {
 const createNewRoom = (roomId, userData) => {
     const roomData = {
         id: roomId,
-        game: true,
+        game: 'DRAWING',
         rounds: 2,
         duration: 120,
-        joined: 0,
+        joined: 1,
         isRunning: false,
         admin: userData.id,
-        teamA: [{ ...userData, color: colorsArray[0] }],
-        teamB: [],
+        team: {
+            'A': [{ ...userData, color: colorsArray[0] }],
+            'B': []
+        },
         allUsers: [userData.id]
     }
     users.push(roomData)
-    return { roomData , color: colorsArray[0] }
+    return { roomData, color: colorsArray[0] }
 }
 
 const getRoom = roomId => {
@@ -52,49 +67,46 @@ const getRoom = roomId => {
 
 const checkWord = (roomId, word = '') => {
     const index = users.findIndex(room => room.id === roomId)
-    if (users[index].status.movie === word) {
-        const addOn = 200 + (users[index].status.time - users[index].duration) * 2
-        if (users[index].status.performingTeam) {
-            users[index].status.scoreA += addOn
-        }
-        else {
-            users[index].status.scoreB += addOn
-        }
+    if (users[index].status.word === word) {
+        const currentTime = Math.round(new Date().getTime() / 1000)
+        const addOn = 200 + (users[index].status.time - currentTime) * 2
+        users[index].status.score[users[index].status.performingTeam] += addOn
+        const scoreAdd = {}
+        scoreAdd[users[index].status.performingTeam] = addOn
+        scoreAdd[otherTeam(users[index].status.performingTeam)] = 0
+        return { right: true, scoreAdd }
     }
+    return { right: false }
+}
+
+const timeOut = (roomID) => {
+    const index = users.findIndex(room => room.id === roomID)
+    const scoreAdd = {}
+    users[index].status.score[users[index].status.performingTeam] += 250
+    scoreAdd[users[index].status.performingTeam] = 0
+    scoreAdd[otherTeam(users[index].status.performingTeam)] = 250
+    return scoreAdd
 }
 
 const addUser = (roomId, userData) => {
     const index = users.findIndex(room => room.id === roomId)
     if (index === -1) return { error: 'Room not exist' }
     users[index].allUsers.push(userData.id)
-    users[index].joined = (users[index].joined + 1) % colorsArray.length
-    const color = colorsArray[users[index].joined]
-
-    if (users[index].teamA.length <= users[index].teamB.length) {
-        users[index].teamA.push({ ...userData, color })
-        return { roomData: users[index], team: true, color, allUsers: users[index].allUsers }
-    }
-    users[index].teamB.push({ ...userData, color })
-    return { roomData: users[index], team: false, color, allUsers: users[index].allUsers }
+    const color = colorsArray[users[index].joined % colorsArray.length]
+    users[index].joined += 1
+    const team = users[index].team['A'].length <= users[index].team['B'].length ? 'A' : 'B'
+    users[index].team[team].push({ ...userData, color })
+    return { roomData: users[index], team, color, allUsers: users[index].allUsers }
 }
 
 const swapTeam = (roomId, userId, team) => {
     const index = users.findIndex(room => room.id === roomId)
-    if (team) {
-        const userIndex = users[index].teamA.findIndex(user => user.id === userId)
-        if (userIndex !== -1) {
-            users[index].teamB.push(users[index].teamA[userIndex])
-            users[index].teamA.splice(userIndex, 1)
-        }
+    const newTeam = otherTeam(team)
+    const userIndex = users[index].team[team].findIndex(user => user.id === userId)
+    if (userIndex !== -1) {
+        users[index].team[newTeam].push(users[index].team[team][userIndex])
+        users[index].team[team].splice(userIndex, 1)
     }
-    else {
-        const userIndex = users[index].teamB.findIndex(user => user.id === userId)
-        if (userIndex !== -1) {
-            users[index].teamA.push(users[index].teamB[userIndex])
-            users[index].teamB.splice(userIndex, 1)
-        }
-    }
-    return users[index]
 }
 
 const getStatus = (roomId) => {
@@ -107,35 +119,27 @@ const createStatus = (roomId) => {
     users[index].isRunning = true
     users[index].status = {
         display: 'choose',
-        performingTeam: true,
+        performingTeam: 'A',
         performer: null,
-        chooser: users[index].teamA[0],
-        movie: null,
+        chooser: users[index].team['A'][0],
+        word: null,
         time: null,
-        performerCountA: 0,
-        chooserCountA: 1,
-        performerCountB: 0,
-        chooserCountB: 0,
-        scoreA: 0,
-        scoreB: 0,
+        performerCount: { 'A': -1, 'B': -1 },
+        chooserCount: { 'A': 0, 'B': -1 },
+        score: { 'A': 0, 'B': 0 },
         currentRound: 1
     }
     return filterStatus(users[index].status)
 }
 
-const setMovieName = (roomId, movieName) => {
+const setWord = (roomId, word) => {
     const index = users.findIndex(room => room.id === roomId)
+    const newTeam = otherTeam(users[index].status.performingTeam)
     users[index].status.chooser = null
-    if (users[index].status.performingTeam) {
-        users[index].status.performer = users[index].teamB[users[index].status.performerCountB]
-        users[index].status.performerCountB = (users[index].status.performerCountB + 1) % users[index].teamB.length
-    }
-    else {
-        users[index].status.performer = users[index].teamA[users[index].status.performerCountA]
-        users[index].status.performerCountA = (users[index].status.performerCountA + 1) % users[index].teamA.length
-    }
-    users[index].status.movie = movieName
-    users[index].status.performingTeam = !users[index].status.performingTeam
+    users[index].status.performerCount[newTeam] = users[index].status.performerCount[newTeam] + 1 >= users[index].team[newTeam].length ? 0 : users[index].status.performerCount[newTeam] + 1
+    users[index].status.performer = users[index].team[newTeam][users[index].status.performerCount[newTeam]]
+    users[index].status.word = word
+    users[index].status.performingTeam = newTeam
     users[index].status.display = 'perform'
     users[index].status.time = Math.ceil(new Date().getTime() / 1000) + users[index].duration
     return users[index]
@@ -144,25 +148,18 @@ const setMovieName = (roomId, movieName) => {
 const setChooser = (roomId) => {
     const index = users.findIndex(room => room.id === roomId)
     users[index].status.performer = null
-    let roundUpdate = false
-    if (users[index].status.performingTeam) {
-        if (users[index].status.performerCountA === 0) {
-            if (parseInt(users[index].currentRound) == parseInt(users[index].rounds)) {
-                users[index].status.display = 'gameEnd'
-                return { gameEnd: true }
-            }
-            roundUpdate = true
-            users[index].currentRound += 1
+    const team = users[index].status.performingTeam
+    users[index].status.chooserCount[team] = users[index].status.chooserCount[team] + 1 >= users[index].team[team].length ? 0 : users[index].status.chooserCount[team] + 1
+    if (team === 'A' && users[index].status.chooserCount[team] === 0) {
+        if (parseInt(users[index].status.currentRound) == parseInt(users[index].rounds)) {
+            users[index].status.display = 'gameEnd'
+            return { gameEnd: gameEnd(index) }
         }
-        users[index].status.chooser = users[index].teamA[users[index].status.chooserCountA]
-        users[index].status.chooserCountA = (users[index].status.chooserCountA + 1) % users[index].teamA.length
+        users[index].status.currentRound += 1
     }
-    else {
-        users[index].status.chooser = users[index].teamB[users[index].status.chooserCountB]
-        users[index].status.chooserCountB = (users[index].status.chooserCountB + 1) % users[index].teamB.length
-    }
+    users[index].status.chooser = users[index].team[team][users[index].status.chooserCount[team]]
     users[index].status.display = 'choose'
-    return { chooser: users[index].status.chooser, round: (roundUpdate && users[index].currentRound) }
+    return { chooser: users[index].status.chooser, round:  users[index].status.currentRound }
 }
 
 const setGameType = (roomID, gameType) => {
@@ -181,44 +178,30 @@ const setDuration = (roomID, duration) => {
 }
 
 const removeUser = (userID) => {
-    for (let i in users) {
+    for (const i in users) {
+
         const index = users[i].allUsers.findIndex(id => id === userID)
-        if (index !== -1) {
-            users[i].allUsers.splice(index, 1)
-            let teamIndex
-            team = null
-            teamIndex = users[i].teamA.findIndex(user => user.id === userID)
-            if (teamIndex !== -1) {
-                team = true
-                users[i].teamA.splice(teamIndex, 1)
+
+        if (index === -1) continue
+        if (users[i].allUsers.length === 1) return users.splice(i, 1)
+
+        users[i].allUsers.splice(index, 1)
+        const roomID = users[i].id
+
+        for (const team in users[i].team) {
+            const teamIndex = users[i].team[team].findIndex(user => user.id === userID)
+            if (teamIndex === -1) continue
+            users[i].team[team].splice(teamIndex, 1)
+            if (!users[i].isRunning) return { roomID, team }
+            if (users[i].status.display === 'gameEnd') return { roomID, team }
+            if (users[i].team[team].length < 2) {
+                users[i].status.display = 'gameEnd'
+                return { roomID, team, gameEnd: gameEnd(i) }
             }
-            else {
-                teamIndex = users[i].teamB.findIndex(user => user.id === userID)
-                if (teamIndex !== -1) {
-                    team = false
-                    users[i].teamB.splice(teamIndex, 1)
-                }
-            }
-            // if (users[i].teamA.length < 2 || users[i].teamA.length < 2) {
-            //     return {
-            //         roomID: users[i].id,
-            //         gameEnd: true
-            //     }
-            // }
-            const onWork = users[i].isRunning && (userID === users[i].status?.chooser?.id || userID === users[i].status?.performer?.id)
-            if (onWork && userID === users[i].status?.chooser?.id) {
-                if (users[i].status.performingTeam) {
-                    users[i].status.chooserCountA = (users[i].status.chooserCountA - 1)
-                }
-                else {
-                    users[i].status.chooserCountB = (users[i].status.chooserCountB - 1)
-                }
-            }
-            return {
-                roomID: users[i].id,
-                team,
-                onWork
-            }
+            const onWork = (userID === users[i].status?.chooser?.id || userID === users[i].status?.performer?.id)
+            if (users[i].status.chooserCount[team] >= teamIndex) users[i].status.chooserCount[team] -= 1
+            if (users[i].status.performerCount[team] >= teamIndex) users[i].status.performerCount[team] -= 1
+            return { roomID, team, onWork }
         }
     }
 }
@@ -230,10 +213,13 @@ module.exports = {
     removeUser,
     swapTeam,
     createStatus,
-    setMovieName,
+    setWord,
     setChooser,
     setGameType,
     setRounds,
     setDuration,
-    getStatus
+    getStatus,
+    checkWord,
+    timeOut,
+    otherTeam
 }

@@ -10,19 +10,19 @@ const Chooser = ({ isChooser, name }) => {
 
     const socket = useContext(SocketContext)
     const roomData = useContext(DataContext)
-    const [movieName , setMovieName] = useState('')
+    const [word , setWord] = useState('')
 
-    const movieNameChangeHandler = (currentMovie) => {
-        setMovieName(currentMovie.toUpperCase())
+    const wordChangeHandler = (currentWord) => {
+        setWord(currentWord.toUpperCase())
     }
 
-    const postMovie = () => {
-        socket.emit('setMovie', roomData.id, movieName)
+    const postWord = () => {
+        socket.emit('setWord', roomData.id, word)
     }
 
     const keyPressHandler = (key) => {
         if (key === 'Enter') {
-            postMovie()
+            postWord()
         }
     }
 
@@ -31,8 +31,8 @@ const Chooser = ({ isChooser, name }) => {
             {isChooser &&
                 <div className={classes['choose-movie']}>
                     <p className={style.text}>Choose a word</p>
-                    <TextInput name='Enter a word' valid={true} value={movieName} onChange={movieNameChangeHandler} onKeyDown={keyPressHandler} />
-                    <Button width='60%' onClick={postMovie} backgroundColor='rgba(27,27,27,0.5)'>POST</Button>
+                    <TextInput name='Enter a word' valid={true} value={word} onChange={wordChangeHandler} onKeyDown={keyPressHandler} />
+                    <Button width='60%' onClick={postWord} backgroundColor='rgba(27,27,27,0.5)'>POST</Button>
                 </div>
             }
             {!isChooser &&
