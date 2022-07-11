@@ -22,7 +22,6 @@ def solve():
             return x[1] - y[1]
         return dist_x - dist_y
     ans = sorted(dp,key = cmp_to_key(compare))
-    # print(ans)
     for i in ans:
         print(i[1],end = ' ')
     print()
